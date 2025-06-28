@@ -1,0 +1,6 @@
+{
+  "ServiceBridge.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/grant\/ServiceBridge\/backend\/src\/ServiceBridge.Api",
+  "ServiceBridge.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/grant\/ServiceBridge\/backend\/src\/ServiceBridge.Application",
+  "ServiceBridge.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/grant\/ServiceBridge\/backend\/src\/ServiceBridge.Domain",
+  "ServiceBridge.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/home\/grant\/ServiceBridge\/backend\/src\/ServiceBridge.Infrastructure"
+}

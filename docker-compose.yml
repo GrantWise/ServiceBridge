@@ -3,7 +3,7 @@ version: '3.8'
 services:
   servicebridge-api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "5000:80"
