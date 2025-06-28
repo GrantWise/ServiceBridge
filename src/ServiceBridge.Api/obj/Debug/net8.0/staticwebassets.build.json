@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "P+GdmbdpX195Um4DXS76iLRYhI3n8Xjn/l7JfG2U/1w=",
+  "Source": "ServiceBridge.Api",
+  "BasePath": "_content/ServiceBridge.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

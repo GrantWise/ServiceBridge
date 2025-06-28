@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "ServiceBridge.Api.Grpc";
+
+package metricsservice;
+
+service MetricsService {
+  rpc GetLiveMetrics(MetricsRequest) returns (LiveMetricsResponse);
+  rpc GetConnectionStats(StatsRequest) returns (StatsResponse);
+}
+
+message MetricsRequest {
+}
+
+message LiveMetricsResponse {
+  string server_time = 1;
+  int32 active_connections = 2;
+  int32 total_requests_today = 3;
+  int32 total_scans_today = 4;
+  double memory_usage_mb = 5;
+}
+
+message StatsRequest {
+}
+
+message StatsResponse {
+  int32 total_connections = 1;
+  double average_response_time = 2;
+  int32 error_count = 3;
+}

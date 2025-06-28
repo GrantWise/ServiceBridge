@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option csharp_namespace = "ServiceBridge.Api.Grpc";
+
+package productservice;
+
+service ProductService {
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+}
+
+message GetProductRequest {
+  string product_code = 1;
+}
+
+message GetProductsRequest {
+  string filter = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ProductResponse {
+  string product_code = 1;
+  string description = 2;
+  int32 quantity_on_hand = 3;
+  double average_monthly_consumption = 4;
+  int32 lead_time_days = 5;
+  int32 quantity_on_order = 6;
+  string last_updated = 7;
+  string last_updated_by = 8;
+  double days_cover_remaining = 9;
+  double reorder_point = 10;
+  int32 stock_status = 11;
+}
+
+message GetProductsResponse {
+  repeated ProductResponse products = 1;
+  int32 total_count = 2;
+}

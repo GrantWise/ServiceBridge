@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+option csharp_namespace = "ServiceBridge.Api.Grpc";
+
+package inventoryservice;
+
+service InventoryService {
+  rpc ProcessScan(ProcessScanRequest) returns (ProcessScanResponse);
+  rpc ProcessBulkScan(BulkScanRequest) returns (BulkScanResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+  rpc UpdateProducts(BulkUpdateRequest) returns (BulkUpdateResponse);
+}
+
+message BulkScanRequest {
+  repeated ScanItem scans = 1;
+  string scanned_by = 2;
+}
+
+message ScanItem {
+  string product_code = 1;
+  int32 quantity = 2;
+  string notes = 3;
+}
+
+message BulkScanResponse {
+  int32 processed_count = 1;
+  repeated string errors = 2;
+}
+
+message BulkUpdateRequest {
+  repeated ProductUpdate updates = 1;
+  string updated_by = 2;
+}
+
+message ProductUpdate {
+  string product_code = 1;
+  optional string description = 2;
+  optional int32 quantity_on_hand = 3;
+  optional double average_monthly_consumption = 4;
+  optional int32 lead_time_days = 5;
+}
+
+message BulkUpdateResponse {
+  int32 updated_count = 1;
+  repeated string errors = 2;
+}
+
+message ProcessScanRequest {
+  string product_code = 1;
+  int32 quantity_scanned = 2;
+  int32 transaction_type = 3; // 0=StockCount, 1=Adjustment, 2=Receiving
+  string scanned_by = 4;
+  string notes = 5;
+}
+
+message ProcessScanResponse {
+  bool success = 1;
+  string message = 2;
+  string transaction_id = 3;
+  int32 previous_quantity = 4;
+  int32 new_quantity = 5;
+  string scan_date_time = 6;
+}
+
+message UpdateProductRequest {
+  string product_code = 1;
+  optional string description = 2;
+  optional int32 quantity_on_hand = 3;
+  optional double average_monthly_consumption = 4;
+  optional int32 lead_time_days = 5;
+  optional int32 quantity_on_order = 6;
+  string updated_by = 7;
+}
+
+message UpdateProductResponse {
+  bool success = 1;
+  string message = 2;
+  InventoryProductResponse updated_product = 3;
+}
+
+message InventoryProductResponse {
+  string product_code = 1;
+  string description = 2;
+  int32 quantity_on_hand = 3;
+  double average_monthly_consumption = 4;
+  int32 lead_time_days = 5;
+  int32 quantity_on_order = 6;
+  string last_updated = 7;
+  string last_updated_by = 8;
+  double days_cover_remaining = 9;
+  double reorder_point = 10;
+  int32 stock_status = 11;
+}
