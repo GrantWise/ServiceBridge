@@ -10,17 +10,35 @@ Clean Architecture implementation with strict 4-layer separation:
 - **Infrastructure**: Entity Framework Core (SQLite), Serilog, JWT services
 - **API**: Multi-protocol endpoints (REST, gRPC, SignalR)
 
-## Quick Start
+## Complete System Startup
 
+### 1. Start Backend API (Required First)
 ```bash
-# Build the solution
-dotnet build
-
-# Run the API server
+cd backend
 dotnet run --project src/ServiceBridge.Api
-
-# Server will start at: http://localhost:5196
+# API Server: http://localhost:5196
+# Swagger UI: http://localhost:5196/swagger
 ```
+
+### 2. Start Frontend Applications (Optional)
+```bash
+# Dashboard App (Enterprise Management)
+cd frontend/dashboard-app
+npm install && npm run dev
+# Dashboard: http://localhost:5174
+
+# Scanner App (Mobile Operations) 
+cd frontend/scanner-app
+npm install && npm run dev
+# Scanner: http://localhost:5173
+```
+
+### 3. Access Points
+- **Backend API**: http://localhost:5196
+- **Swagger Documentation**: http://localhost:5196/swagger
+- **Dashboard App**: http://localhost:5174 (Enterprise management)
+- **Scanner App**: http://localhost:5173 (Mobile scanning)
+- **SignalR Hub**: ws://localhost:5196/inventoryhub
 
 ## Browser Access & Authentication
 
@@ -94,3 +112,38 @@ The application automatically seeds the database with:
 - **Sample Products**: Various inventory items with realistic stock levels
 - **Transaction History**: Example scanning transactions
 - **Calculated Metrics**: Days cover remaining, reorder points, stock status
+
+## Detailed Documentation
+
+### Component-Specific Setup Guides
+
+For detailed setup, configuration, and development instructions:
+
+#### 📚 **Backend API**
+- **Location**: `backend/README.md`
+- **Contents**: Complete .NET setup, database configuration, API endpoints, gRPC services, SignalR setup, authentication, troubleshooting
+- **Quick Link**: [Backend README](./backend/README.md)
+
+#### 🖥️ **Dashboard Application**
+- **Location**: `frontend/dashboard-app/README.md`
+- **Contents**: React setup, multi-protocol integration, advanced features, environment configuration, backend communication
+- **Quick Link**: [Dashboard README](./frontend/dashboard-app/README.md)
+
+#### 📱 **Scanner Application**  
+- **Location**: `frontend/scanner-app/README.md`
+- **Contents**: Mobile app setup, barcode scanning, real-time updates, offline support, backend communication
+- **Quick Link**: [Scanner README](./frontend/scanner-app/README.md)
+
+#### 🚀 **Frontend Overview**
+- **Location**: `frontend/README.md`
+- **Contents**: Multi-app startup guide, port assignments, shared authentication, development workflow
+- **Quick Link**: [Frontend README](./frontend/README.md)
+
+### Architecture Documentation
+
+Additional technical documentation:
+- **Clean Architecture**: See `backend/README.md` for 4-layer implementation details
+- **Multi-Protocol Communication**: Detailed in each application's README
+- **Database Schema**: Complete entity definitions in `backend/README.md`
+- **Authentication Flow**: JWT implementation across all components
+- **Real-time Features**: SignalR integration patterns and examples

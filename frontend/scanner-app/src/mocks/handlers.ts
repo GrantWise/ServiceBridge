@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { Product, ScanTransaction, LiveMetrics } from '@/types/api';
+import { Product, ScanTransaction, LiveMetrics, CreateScanRequest, LoginRequest } from '../types/api';
 
 // Mock data
 const mockProducts: Product[] = [
@@ -86,7 +86,7 @@ export const handlers = [
   }),
 
   http.post('/api/v1/products/:code/scan', async ({ request, params }) => {
-    const body = await request.json() as any;
+    const body = await request.json() as CreateScanRequest;
     const product = mockProducts.find(p => p.productCode === params.code);
     
     if (!product) {
@@ -136,7 +136,7 @@ export const handlers = [
 
   // Auth endpoints
   http.post('/api/v1/auth/login', async ({ request }) => {
-    const body = await request.json() as any;
+    const body = await request.json() as LoginRequest;
     
     if (body.email === 'test@example.com' && body.password === 'password') {
       return HttpResponse.json({

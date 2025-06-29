@@ -1,24 +1,31 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import './App.css';
-import { ScannerForm } from './components/scanner/ScannerForm';
-import { SignalRService } from './services/signalr';
-import { LiveNotifications } from './components/scanner/LiveNotifications';
-import { OfflineQueue } from './components/scanner/OfflineQueue';
-import { PullToRefresh } from './components/ui/PullToRefresh';
-import { ConnectionIndicator } from './components/scanner/ConnectionIndicator';
-import { ErrorBoundary } from './components/error/ErrorBoundary';
+import { SignalRService, ErrorBoundary, logger } from './features/shared';
+import { AuthProvider, useAuth, ProtectedRoute } from './features/auth';
 import { Toaster } from 'sonner';
 import { env } from './config/env';
-import { errorHandler } from './services/error/errorHandler';
-import { logger } from './services/error/logger';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { LoginPage } from './pages/LoginPage';
 import { UserRole } from './types/api';
+
+// Lazy load components for code splitting
+const LoginPage = lazy(() => import('./features/auth').then(module => ({ default: module.LoginPage })));
+const ScannerForm = lazy(() => import('./features/scanner').then(module => ({ default: module.ScannerForm })));
+const LiveNotifications = lazy(() => import('./features/scanner').then(module => ({ default: module.LiveNotifications })));
+const OfflineQueue = lazy(() => import('./features/scanner').then(module => ({ default: module.OfflineQueue })));
+const PullToRefresh = lazy(() => import('./features/shared').then(module => ({ default: module.PullToRefresh })));
+const ConnectionIndicator = lazy(() => import('./features/scanner').then(module => ({ default: module.ConnectionIndicator })));
 
 // Create a singleton SignalRService instance
 const signalRService = new SignalRService(env.VITE_SIGNALR_URL);
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
+}
 
 function Header() {
   const { user, logout } = useAuth();
@@ -45,8 +52,12 @@ function Header() {
             </button>
           </div>
         )}
-        <LiveNotifications signalRService={signalRService} />
-        <ConnectionIndicator signalRService={signalRService} />
+        <Suspense fallback={<div className="w-6 h-6 animate-pulse bg-muted rounded" />}>
+          <LiveNotifications signalRService={signalRService} />
+        </Suspense>
+        <Suspense fallback={<div className="w-6 h-6 animate-pulse bg-muted rounded" />}>
+          <ConnectionIndicator signalRService={signalRService} />
+        </Suspense>
       </div>
     </header>
   );
@@ -57,7 +68,9 @@ function Footer() {
     <footer className="w-full px-4 py-2 border-t bg-background text-xs text-muted-foreground text-center sticky bottom-0">
       <div className="flex flex-col items-center gap-2">
         <span>Recent activity summary (coming soon)</span>
-        <OfflineQueue />
+        <Suspense fallback={<div className="w-full h-4 animate-pulse bg-muted rounded" />}>
+          <OfflineQueue />
+        </Suspense>
       </div>
     </footer>
   );
@@ -72,14 +85,16 @@ function ScanPage() {
     window.location.reload(); // Or trigger a data refetch
   };
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 max-w-md mx-auto w-full">
-        <div className="w-full space-y-4">
-          <h1 className="text-2xl font-semibold mb-4 text-center">Scan Product</h1>
-          <ScannerForm signalRService={signalRService} />
-        </div>
-      </main>
-    </PullToRefresh>
+    <Suspense fallback={<LoadingFallback />}>
+      <PullToRefresh onRefresh={handleRefresh}>
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 max-w-md mx-auto w-full">
+          <div className="w-full space-y-4">
+            <h1 className="text-2xl font-semibold mb-4 text-center">Scan Product</h1>
+            <ScannerForm signalRService={signalRService} />
+          </div>
+        </main>
+      </PullToRefresh>
+    </Suspense>
   );
 }
 

@@ -41,39 +41,95 @@
   color: #888;
 }
 
-/* App-specific styles */
+/* Modern 2025 Enterprise App Styles */
 .scanner-app {
   min-height: 100vh;
-  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+  background: linear-gradient(135deg, oklch(var(--background)) 0%, oklch(var(--muted)) 100%);
+  position: relative;
 }
 
+.scanner-app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, oklch(var(--primary) / 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, oklch(var(--accent) / 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Enterprise Glass Cards */
 .scanner-card {
-  backdrop-filter: blur(10px);
-  background: hsl(var(--card) / 0.8);
-  border: 1px solid hsl(var(--border) / 0.2);
-  box-shadow: 0 8px 32px hsl(var(--foreground) / 0.1);
+  backdrop-filter: blur(12px);
+  background: oklch(var(--card) / 0.8);
+  border: 1px solid oklch(var(--border) / 0.3);
+  box-shadow: 
+    0 8px 32px oklch(var(--foreground) / 0.08),
+    0 1px 0 oklch(var(--border) / 0.1) inset;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.scanner-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 16px 48px oklch(var(--foreground) / 0.12),
+    0 1px 0 oklch(var(--border) / 0.15) inset;
+}
+
+/* Modern Input Styling */
 .scanner-input {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .scanner-input:focus {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsl(var(--primary) / 0.2);
+  box-shadow: 
+    0 4px 16px oklch(var(--primary) / 0.15),
+    0 0 0 3px oklch(var(--primary) / 0.1);
 }
 
+.scanner-input:hover:not(:focus) {
+  border-color: oklch(var(--border));
+  box-shadow: 0 2px 8px oklch(var(--foreground) / 0.05);
+}
+
+/* Enhanced Button Styling */
 .scanner-button {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, oklch(var(--primary-foreground) / 0.1), transparent);
+  transition: left 0.5s ease-in-out;
+}
+
+.scanner-button:hover::before {
+  left: 100%;
 }
 
 .scanner-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px oklch(var(--primary) / 0.25),
+    0 4px 8px oklch(var(--primary) / 0.15);
 }
 
 .scanner-button:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
+  transition-duration: 0.1s;
 }
 
 /* Mobile optimizations */
