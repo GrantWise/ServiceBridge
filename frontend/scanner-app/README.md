@@ -19,22 +19,31 @@ A modern React-based inventory scanning application built with TypeScript, Vite,
 
 ## Installation
 
-1. Install dependencies:
+1. **Install dependencies:**
 ```bash
+cd frontend/scanner-app
 npm install
 ```
 
-2. Set up environment variables:
+2. **Set up environment variables:**
 ```bash
 cp .env.example .env
 ```
 
-3. Start the development server:
+Edit `.env` file with your configuration:
+```env
+VITE_API_URL=http://localhost:5196
+VITE_SIGNALR_URL=http://localhost:5196/inventoryhub
+VITE_APP_NAME=ServiceBridge Scanner
+VITE_APP_VERSION=1.0.0
+```
+
+3. **Start the development server:**
 ```bash
 npm run dev
 ```
 
-The application will be available at http://localhost:5173
+The scanner application will be available at **http://localhost:5173**
 
 ## Demo Credentials
 
@@ -132,42 +141,158 @@ src/
 - Use proper TypeScript types
 - Follow ESLint rules
 
-## API Integration
+## Backend Communication Setup
 
-The app expects a backend API at `http://localhost:5196` with the following endpoints:
+### 1. Backend API Integration
 
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/refresh` - Token refresh
-- `POST /api/v1/auth/logout` - User logout
-- `GET /api/v1/products` - List products
-- `GET /api/v1/products/{code}` - Get product details
-- `POST /api/v1/products/{code}/scan` - Record scan
-- `GET /api/v1/analytics/inventory` - Get analytics
-- WebSocket `/inventoryhub` - Real-time updates
+The scanner app communicates with the backend via REST API and SignalR:
+
+#### REST API Endpoints
+```
+Base URL: http://localhost:5196/api/v1
+
+Authentication:
+- POST /auth/login          # User login
+- POST /auth/refresh        # Token refresh
+- POST /auth/logout         # User logout
+- GET  /auth/me            # Get current user
+
+Products & Scanning:
+- GET    /products         # List products (with search/filter)
+- GET    /products/{code}  # Get product by barcode
+- POST   /products/{code}/scan # Record inventory scan
+- PUT    /products/{code}  # Update product details
+
+Analytics:
+- GET    /analytics/inventory # Get inventory analytics
+- GET    /analytics/scans    # Get scan history
+- GET    /analytics/user     # Get user-specific metrics
+```
+
+#### Request Headers
+All API requests include:
+```javascript
+{
+  'Authorization': 'Bearer <jwt-token>',
+  'Content-Type': 'application/json',
+  'X-CSRF-Token': '<csrf-token>',
+  'X-Request-ID': '<unique-request-id>'
+}
+```
+
+### 2. SignalR Real-time Communication
+
+#### Connection Setup
+```javascript
+// Automatic connection on login
+const signalrUrl = 'http://localhost:5196/inventoryhub';
+const connection = new HubConnectionBuilder()
+  .withUrl(signalrUrl, {
+    accessTokenFactory: () => getAuthToken()
+  })
+  .withAutomaticReconnect()
+  .build();
+```
+
+#### Hub Methods & Events
+```javascript
+// Server -> Client Events
+connection.on('ProductScanned', (scanData) => {
+  // Handle real-time scan notifications
+});
+
+connection.on('ProductUpdated', (product) => {
+  // Handle product updates from other users
+});
+
+connection.on('UserConnected', (connectionInfo) => {
+  // Handle user connection events
+});
+
+// Client -> Server Methods
+connection.invoke('JoinGroup', 'scanner-updates');
+connection.invoke('NotifyScan', scanData);
+```
+
+### 3. Error Handling & Offline Support
+
+The scanner implements robust error handling:
+
+```javascript
+// Network Failure Handling
+1. Online: REST API calls with retry logic
+2. Offline: Local storage queue for scans
+3. Reconnection: Auto-sync queued data when online
+
+// Real-time Fallback
+- SignalR: Auto-reconnect with exponential backoff
+- HTTP: Circuit breaker pattern for API calls
+- Cache: Local storage for critical data
+```
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Cannot connect to backend**
-   - Ensure backend is running on port 5196
-   - Check CORS settings in backend
-   - Verify API_URL in .env file
+   - Verify backend is running: `curl http://localhost:5196/api/v1/health`
+   - Check CORS configuration in backend appsettings.json
+   - Ensure API_URL in .env matches backend address: `http://localhost:5196`
+   - Verify firewall/network settings allow port 5196
 
-2. **Login fails**
-   - Check credentials are correct
-   - Ensure backend authentication is configured
-   - Check browser console for errors
+2. **Authentication failures**
+   - Check credentials match backend user accounts
+   - Verify JWT configuration in backend
+   - Check token expiration settings
+   - Clear browser storage: `localStorage.clear(); sessionStorage.clear()`
 
-3. **Real-time updates not working**
-   - Verify SignalR hub is accessible
-   - Check WebSocket connection in browser
-   - Ensure authentication token is valid
+3. **SignalR connection issues**
+   - Test WebSocket connectivity in browser dev tools (Network tab)
+   - Verify SignalR hub is configured in backend Startup.cs
+   - Check authentication token is valid and not expired
+   - Test manually: `wscat -c ws://localhost:5196/inventoryhub`
 
-4. **Build errors**
-   - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
+4. **Barcode scanning not working**
+   - Check camera permissions in browser
+   - Ensure HTTPS is used in production (camera requires secure context)
+   - Verify barcode format matches expected patterns
+   - Check browser compatibility for camera API
+
+5. **Build or runtime errors**
+   - Clear dependencies: `rm -rf node_modules && npm install`
    - Clear Vite cache: `rm -rf node_modules/.vite`
    - Check TypeScript errors: `npm run type-check`
+   - Verify environment variables in .env file
+
+### API Integration Testing
+
+#### Backend Health Check
+```bash
+# Test backend connectivity
+curl http://localhost:5196/api/v1/health
+
+# Test authentication
+curl -X POST http://localhost:5196/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"scanner1@servicebridge.com","password":"scanner123"}'
+
+# Test product lookup
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:5196/api/v1/products/P001
+```
+
+#### SignalR Connection Test
+```javascript
+// Browser console test
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl('http://localhost:5196/inventoryhub')
+  .build();
+
+connection.start().then(() => {
+  console.log('SignalR Connected');
+  connection.invoke('JoinGroup', 'scanner-updates');
+}).catch(err => console.error('Connection failed:', err));
+```
 
 ## License
 
