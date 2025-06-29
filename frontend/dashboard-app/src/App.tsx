@@ -18,6 +18,7 @@ import { ActivityPage } from '@/pages/ActivityPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { AdvancedAnalyticsPage } from '@/pages/AdvancedAnalyticsPage';
 import { UsersPage } from '@/pages/UsersPage';
+import { ContinuousImprovementPage } from '@/pages/ContinuousImprovementPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -96,6 +97,12 @@ function AppContent() {
           <Route path="advanced-analytics" element={
             <ProtectedRoute requiredRole="Manager">
               <AdvancedAnalyticsPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="continuous-improvement" element={
+            <ProtectedRoute requiredRole="Manager">
+              <ContinuousImprovementPage />
             </ProtectedRoute>
           } />
           

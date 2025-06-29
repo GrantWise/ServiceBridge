@@ -9,7 +9,8 @@ import {
   FileText,
   Shield,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RoleGuard } from '@/features/auth';
@@ -54,6 +55,13 @@ const navItems: NavItem[] = [
     icon: BarChart3,
     roles: ['Manager', 'Admin'],
     badge: 'New'
+  },
+  {
+    title: 'Continuous Improvement',
+    href: '/continuous-improvement',
+    icon: Target,
+    roles: ['Manager', 'Admin'],
+    badge: 'PDCA'
   },
   {
     title: 'Activity',
