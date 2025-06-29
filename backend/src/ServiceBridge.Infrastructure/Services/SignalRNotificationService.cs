@@ -62,8 +62,12 @@ public class SignalRNotificationService : INotificationService
     {
         try
         {
-            await _hubContext.Clients.Group(groupName).SendCoreAsync(method, new object[] { data });
-            _logger.LogDebug("Sent {Method} to group {GroupName}", method, groupName);
+            var groupClient = _hubContext.Clients.Group(groupName);
+            if (groupClient != null && data != null)
+            {
+                await groupClient.SendCoreAsync(method, new object[] { data });
+                _logger.LogDebug("Sent {Method} to group {GroupName}", method, groupName);
+            }
         }
         catch (Exception ex)
         {
@@ -75,8 +79,12 @@ public class SignalRNotificationService : INotificationService
     {
         try
         {
-            await _hubContext.Clients.User(userId).SendCoreAsync(method, new object[] { data });
-            _logger.LogDebug("Sent {Method} to user {UserId}", method, userId);
+            var userClient = _hubContext.Clients.User(userId);
+            if (userClient != null && data != null)
+            {
+                await userClient.SendCoreAsync(method, new object[] { data });
+                _logger.LogDebug("Sent {Method} to user {UserId}", method, userId);
+            }
         }
         catch (Exception ex)
         {
@@ -88,8 +96,12 @@ public class SignalRNotificationService : INotificationService
     {
         try
         {
-            await _hubContext.Clients.All.SendCoreAsync(method, new object[] { data });
-            _logger.LogDebug("Sent {Method} to all clients", method);
+            var allClients = _hubContext.Clients.All;
+            if (allClients != null && data != null)
+            {
+                await allClients.SendCoreAsync(method, new object[] { data });
+                _logger.LogDebug("Sent {Method} to all clients", method);
+            }
         }
         catch (Exception ex)
         {

@@ -171,7 +171,7 @@ public class MappingProfileTests
             ScannedBy = "AdjustUser",
             TransactionType = TransactionType.Adjustment,
             Notes = "Damage adjustment",
-            Product = null // No product navigation property
+            Product = null! // No product navigation property - suppressed for test
         };
 
         // Act
