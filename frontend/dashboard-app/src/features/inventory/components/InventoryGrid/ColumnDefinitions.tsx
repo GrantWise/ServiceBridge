@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Edit, Scan } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Edit, Scan } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -16,6 +16,28 @@ interface ColumnConfig {
   onEdit?: (product: Product) => void;
   onScan?: (product: Product) => void;
   canEdit?: (product: Product) => boolean;
+}
+
+// Helper component for sortable column headers
+function SortableHeader({ column, children }: { column: any; children: React.ReactNode }) {
+  const sortDirection = column.getIsSorted();
+  
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => column.toggleSorting(sortDirection === 'asc')}
+      className="h-8 px-2 lg:px-3 hover:bg-muted"
+    >
+      {children}
+      {sortDirection === 'asc' ? (
+        <ArrowUp className="ml-2 h-4 w-4" />
+      ) : sortDirection === 'desc' ? (
+        <ArrowDown className="ml-2 h-4 w-4" />
+      ) : (
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      )}
+    </Button>
+  );
 }
 
 export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Product>[] {
@@ -48,14 +70,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'productCode',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Product Code
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => (
         <div className="font-medium">
@@ -69,14 +86,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'description',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Description
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => (
         <div className="max-w-[200px] truncate">
@@ -90,14 +102,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'quantityOnHand',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Qty on Hand
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => (
         <div className="text-right font-medium">
@@ -111,14 +118,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'averageMonthlyConsumption',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Avg Monthly Use
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => (
         <div className="text-right">
@@ -132,14 +134,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'daysCoverRemaining',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Days Cover
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => {
         const days = row.getValue('daysCoverRemaining') as number;
@@ -201,14 +198,9 @@ export function createInventoryColumns(config: ColumnConfig = {}): ColumnDef<Pro
     {
       accessorKey: 'lastUpdated',
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="h-8 px-2 lg:px-3"
-        >
+        <SortableHeader column={column}>
           Last Updated
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        </SortableHeader>
       ),
       cell: ({ row }) => {
         const date = new Date(row.getValue('lastUpdated'));

@@ -133,20 +133,20 @@ export function FilterBuilder({ fields, onAddFilter, category }: FilterBuilderPr
   };
 
   return (
-    <div className=\"space-y-4\">
+    <div className="space-y-4">
       {/* Preset Filters */}
       {presetFilters.length > 0 && (
-        <div className=\"space-y-2\">
+        <div className="space-y-2">
           <Label>Quick Filters</Label>
-          <div className=\"flex flex-wrap gap-2\">
+          <div className="flex flex-wrap gap-2">
             {presetFilters.map((preset, index) => (
               <Button
                 key={index}
-                variant=\"outline\"
-                size=\"sm\"
+                variant="outline"
+                size="sm"
                 onClick={() => handleAddPresetFilter(preset)}
               >
-                <Plus className=\"h-3 w-3 mr-1\" />
+                <Plus className="h-3 w-3 mr-1" />
                 {preset.label}
               </Button>
             ))}
@@ -155,13 +155,13 @@ export function FilterBuilder({ fields, onAddFilter, category }: FilterBuilderPr
       )}
 
       {/* Custom Filter Builder */}
-      <div className=\"space-y-4 p-4 border rounded-lg bg-muted/50\">
-        <div className=\"grid gap-4 md:grid-cols-3\">
-          <div className=\"space-y-2\">
+      <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-2">
             <Label>Field</Label>
             <Select value={selectedField} onValueChange={setSelectedField}>
               <SelectTrigger>
-                <SelectValue placeholder=\"Select field\" />
+                <SelectValue placeholder="Select field" />
               </SelectTrigger>
               <SelectContent>
                 {fields.map((field) => (
@@ -173,11 +173,11 @@ export function FilterBuilder({ fields, onAddFilter, category }: FilterBuilderPr
             </Select>
           </div>
 
-          <div className=\"space-y-2\">
+          <div className="space-y-2">
             <Label>Operator</Label>
             <Select value={selectedOperator} onValueChange={setSelectedOperator}>
               <SelectTrigger>
-                <SelectValue placeholder=\"Select operator\" />
+                <SelectValue placeholder="Select operator" />
               </SelectTrigger>
               <SelectContent>
                 {availableOperators.map((op) => (
@@ -189,16 +189,16 @@ export function FilterBuilder({ fields, onAddFilter, category }: FilterBuilderPr
             </Select>
           </div>
 
-          <div className=\"space-y-2\">
+          <div className="space-y-2">
             <Label>Value</Label>
             {getInputType(field?.type) === 'select' ? (
               <Select value={filterValue} onValueChange={setFilterValue}>
                 <SelectTrigger>
-                  <SelectValue placeholder=\"Select value\" />
+                  <SelectValue placeholder="Select value" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=\"true\">True</SelectItem>
-                  <SelectItem value=\"false\">False</SelectItem>
+                  <SelectItem value="true">True</SelectItem>
+                  <SelectItem value="false">False</SelectItem>
                 </SelectContent>
               </Select>
             ) : (
@@ -206,28 +206,28 @@ export function FilterBuilder({ fields, onAddFilter, category }: FilterBuilderPr
                 type={getInputType(field?.type)}
                 value={filterValue}
                 onChange={(e) => setFilterValue(e.target.value)}
-                placeholder=\"Enter value\"
+                placeholder="Enter value"
               />
             )}
           </div>
         </div>
 
-        <div className=\"space-y-2\">
+        <div className="space-y-2">
           <Label>Custom Label (optional)</Label>
           <Input
             value={customLabel}
             onChange={(e) => setCustomLabel(e.target.value)}
-            placeholder=\"Enter filter description\"
+            placeholder="Enter filter description"
           />
         </div>
 
         <Button
           onClick={handleAddFilter}
           disabled={!selectedField || !selectedOperator || !filterValue}
-          size=\"sm\"
-          className=\"w-full\"
+          size="sm"
+          className="w-full"
         >
-          <Plus className=\"h-4 w-4 mr-2\" />
+          <Plus className="h-4 w-4 mr-2" />
           Add Filter
         </Button>
       </div>

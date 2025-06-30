@@ -15,6 +15,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { 
   ChevronLeft, 
   ChevronRight, 
   RefreshCw, 
@@ -25,10 +34,13 @@ import {
   Settings
 } from 'lucide-react';
 import { useProducts } from '@/features/shared/hooks/useProducts';
-import { useSignalR } from '@/features/shared/hooks/useSignalR';
+import { useSignalR, useAutoRefreshSettings } from '@/features/shared/hooks/useSignalR';
 import { ConnectionIndicator } from '@/features/shared/components/ConnectionIndicator';
 import { Product, StockStatus } from '@/features/shared/types/api.types';
 import { createInventoryColumns } from './ColumnDefinitions';
+import { AdvancedFilters, AdvancedFilterState } from './AdvancedFilters';
+import { ColumnVisibilityControls } from './ColumnVisibilityControls';
+import { ExportManager } from './ExportManager';
 import { InventoryFilter } from '../../types/inventory.types';
 import { cn } from '@/lib/utils';
 
@@ -55,18 +67,33 @@ export function InventoryGrid({
     pageSize: 50,
   });
   const [globalFilter, setGlobalFilter] = useState('');
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilterState>({});
 
   // SignalR connection for real-time updates
-  const { isConnected } = useSignalR();
+  const { isConnected, autoRefreshEnabled } = useSignalR();
+  const { toggleAutoRefresh, setRefreshInterval, autoRefreshInterval } = useAutoRefreshSettings();
 
   // Build query parameters
-  const queryParams = useMemo(() => ({
-    pageNumber: pagination.pageIndex + 1,
-    pageSize: pagination.pageSize,
-    search: globalFilter,
-    sortBy: sorting[0]?.id,
-    sortDirection: sorting[0]?.desc ? 'desc' : 'asc',
-  }), [pagination, globalFilter, sorting]);
+  const queryParams = useMemo(() => {
+    let searchQuery = globalFilter;
+    
+    // Append advanced filters to search query for basic filtering
+    if (advancedFilters.productCode) {
+      searchQuery = searchQuery ? `${searchQuery} code:${advancedFilters.productCode}` : `code:${advancedFilters.productCode}`;
+    }
+    if (advancedFilters.description) {
+      searchQuery = searchQuery ? `${searchQuery} desc:${advancedFilters.description}` : `desc:${advancedFilters.description}`;
+    }
+    
+    return {
+      pageNumber: pagination.pageIndex + 1,
+      pageSize: pagination.pageSize,
+      search: searchQuery,
+      stockStatus: advancedFilters.stockStatus,
+      sortBy: sorting[0]?.id,
+      sortDirection: sorting[0]?.desc ? 'desc' : 'asc',
+    };
+  }, [pagination, globalFilter, sorting, advancedFilters]);
 
   // Fetch products with real-time updates
   const { 
@@ -78,8 +105,43 @@ export function InventoryGrid({
     isFetching 
   } = useProducts(queryParams);
 
-  const products = productsData?.items || [];
-  const totalCount = productsData?.totalCount || 0;
+  // Apply client-side filtering for numeric ranges
+  const filteredProducts = useMemo(() => {
+    let products = productsData?.data || [];
+    
+    // Apply quantity range filter
+    if (advancedFilters.quantityRange?.min !== undefined || advancedFilters.quantityRange?.max !== undefined) {
+      products = products.filter(product => {
+        const quantity = product.quantityOnHand;
+        if (advancedFilters.quantityRange?.min !== undefined && quantity < advancedFilters.quantityRange.min) {
+          return false;
+        }
+        if (advancedFilters.quantityRange?.max !== undefined && quantity > advancedFilters.quantityRange.max) {
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    // Apply days range filter
+    if (advancedFilters.daysRange?.min !== undefined || advancedFilters.daysRange?.max !== undefined) {
+      products = products.filter(product => {
+        const days = product.daysCoverRemaining;
+        if (advancedFilters.daysRange?.min !== undefined && days < advancedFilters.daysRange.min) {
+          return false;
+        }
+        if (advancedFilters.daysRange?.max !== undefined && days > advancedFilters.daysRange.max) {
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    return products;
+  }, [productsData?.data, advancedFilters]);
+
+  const products = filteredProducts;
+  const totalCount = products.length;
 
   // Table columns
   const columns = useMemo(
@@ -137,10 +199,17 @@ export function InventoryGrid({
     refetch();
   };
 
-  // Handle export (placeholder)
-  const handleExport = () => {
-    console.log('Exporting products...', selectedProducts.length > 0 ? selectedProducts : products);
-    // TODO: Implement export functionality
+
+  // Handle advanced filters
+  const handleAdvancedFiltersChange = (filters: AdvancedFilterState) => {
+    setAdvancedFilters(filters);
+    // Reset pagination when filters change
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+  };
+
+  const handleClearAdvancedFilters = () => {
+    setAdvancedFilters({});
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   };
 
   if (isError) {
@@ -178,10 +247,44 @@ export function InventoryGrid({
             Refresh
           </Button>
           
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings className="mr-2 h-4 w-4" />
+                Auto-refresh
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Auto-refresh Settings</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={autoRefreshEnabled}
+                onCheckedChange={toggleAutoRefresh}
+              >
+                Enable auto-refresh
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Refresh Interval</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setRefreshInterval(1)}>
+                1 minute {autoRefreshInterval === 1 && '✓'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRefreshInterval(5)}>
+                5 minutes {autoRefreshInterval === 5 && '✓'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRefreshInterval(10)}>
+                10 minutes {autoRefreshInterval === 10 && '✓'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setRefreshInterval(30)}>
+                30 minutes {autoRefreshInterval === 30 && '✓'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <ExportManager 
+            table={table}
+            selectedProducts={selectedProducts}
+            allProducts={productsData?.data || []}
+          />
           
           {selectedProducts.length > 0 && (
             <Button size="sm">
@@ -204,22 +307,31 @@ export function InventoryGrid({
           />
         </div>
         
-        <Button variant="outline" size="sm">
-          <Filter className="mr-2 h-4 w-4" />
-          Filters
-        </Button>
+        <AdvancedFilters
+          filters={advancedFilters}
+          onFiltersChange={handleAdvancedFiltersChange}
+          onClearFilters={handleClearAdvancedFilters}
+        />
         
-        <Button variant="outline" size="sm">
-          <Settings className="mr-2 h-4 w-4" />
-          Columns
-        </Button>
+        <ColumnVisibilityControls table={table} />
       </div>
 
       {/* Real-time status */}
       {isConnected && (
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <div className="h-2 w-2 rounded-full bg-green-500" />
-          <span>Real-time updates active</span>
+        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+          <div className="flex items-center space-x-2">
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <span>Real-time connection active</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className={cn(
+              "h-2 w-2 rounded-full", 
+              autoRefreshEnabled ? "bg-blue-500" : "bg-gray-400"
+            )} />
+            <span>
+              Auto-refresh {autoRefreshEnabled ? `enabled (${autoRefreshInterval}min)` : 'disabled'}
+            </span>
+          </div>
         </div>
       )}
 
@@ -236,8 +348,8 @@ export function InventoryGrid({
                   >
                     {header.isPlaceholder
                       ? null
-                      : header.column.getCanSort()
-                      ? header.column.columnDef.header?.(header.getContext())
+                      : typeof header.column.columnDef.header === 'function'
+                      ? header.column.columnDef.header(header.getContext())
                       : typeof header.column.columnDef.header === 'string'
                       ? header.column.columnDef.header
                       : null}

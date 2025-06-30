@@ -94,13 +94,13 @@ export function FieldSelector({ onAddField, category }: FieldSelectorProps) {
   };
 
   return (
-    <div className=\"space-y-4 p-4 border rounded-lg bg-muted/50\">
-      <div className=\"grid gap-4 md:grid-cols-2\">
-        <div className=\"space-y-2\">
+    <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
           <Label>Field</Label>
           <Select value={selectedFieldName} onValueChange={setSelectedFieldName}>
             <SelectTrigger>
-              <SelectValue placeholder=\"Select a field\" />
+              <SelectValue placeholder="Select a field" />
             </SelectTrigger>
             <SelectContent>
               {availableFields.map((field) => (
@@ -112,7 +112,7 @@ export function FieldSelector({ onAddField, category }: FieldSelectorProps) {
           </Select>
         </div>
 
-        <div className=\"space-y-2\">
+        <div className="space-y-2">
           <Label>Custom Label (optional)</Label>
           <Input
             value={customLabel}
@@ -123,15 +123,15 @@ export function FieldSelector({ onAddField, category }: FieldSelectorProps) {
       </div>
 
       {selectedField && availableAggregations.length > 0 && (
-        <div className=\"grid gap-4 md:grid-cols-2\">
-          <div className=\"space-y-2\">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
             <Label>Aggregation (optional)</Label>
             <Select value={aggregation} onValueChange={setAggregation}>
               <SelectTrigger>
-                <SelectValue placeholder=\"Select aggregation\" />
+                <SelectValue placeholder="Select aggregation" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=\"\">None</SelectItem>
+                <SelectItem value="">None</SelectItem>
                 {availableAggregations.map((agg) => (
                   <SelectItem key={agg} value={agg}>
                     {agg.toUpperCase()}
@@ -141,7 +141,7 @@ export function FieldSelector({ onAddField, category }: FieldSelectorProps) {
             </Select>
           </div>
 
-          <div className=\"space-y-2\">
+          <div className="space-y-2">
             <Label>Format (optional)</Label>
             <Input
               value={format}
@@ -152,22 +152,22 @@ export function FieldSelector({ onAddField, category }: FieldSelectorProps) {
         </div>
       )}
 
-      <div className=\"flex items-center space-x-2\">
+      <div className="flex items-center space-x-2">
         <Checkbox
-          id=\"required\"
+          id="required"
           checked={isRequired}
           onCheckedChange={(checked) => setIsRequired(!!checked)}
         />
-        <Label htmlFor=\"required\">Required field</Label>
+        <Label htmlFor="required">Required field</Label>
       </div>
 
       <Button
         onClick={handleAddField}
         disabled={!selectedField}
-        size=\"sm\"
-        className=\"w-full\"
+        size="sm"
+        className="w-full"
       >
-        <Plus className=\"h-4 w-4 mr-2\" />
+        <Plus className="h-4 w-4 mr-2" />
         Add Field
       </Button>
     </div>

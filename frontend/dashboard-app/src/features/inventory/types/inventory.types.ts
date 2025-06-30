@@ -75,13 +75,11 @@ export interface GridAction {
 // Stock status utilities
 export function getStockStatusColor(status: StockStatus): string {
   switch (status) {
-    case StockStatus.Normal:
+    case StockStatus.Adequate:
       return 'text-green-600 bg-green-50';
     case StockStatus.Low:
       return 'text-yellow-600 bg-yellow-50';
-    case StockStatus.Critical:
-      return 'text-red-600 bg-red-50';
-    case StockStatus.Overstock:
+    case StockStatus.Overstocked:
       return 'text-blue-600 bg-blue-50';
     default:
       return 'text-gray-600 bg-gray-50';
@@ -90,14 +88,12 @@ export function getStockStatusColor(status: StockStatus): string {
 
 export function getStockStatusLabel(status: StockStatus): string {
   switch (status) {
-    case StockStatus.Normal:
-      return 'Normal';
+    case StockStatus.Adequate:
+      return 'Adequate';
     case StockStatus.Low:
       return 'Low Stock';
-    case StockStatus.Critical:
-      return 'Critical';
-    case StockStatus.Overstock:
-      return 'Overstock';
+    case StockStatus.Overstocked:
+      return 'Overstocked';
     default:
       return 'Unknown';
   }

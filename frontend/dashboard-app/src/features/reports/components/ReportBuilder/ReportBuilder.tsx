@@ -85,7 +85,7 @@ export function ReportBuilder({ template, onSave, onExecute }: ReportBuilderProp
   };
 
   return (
-    <div className=\"space-y-6\">
+    <div className="space-y-6">
       {/* Basic Information */}
       <Card>
         <CardHeader>
@@ -94,41 +94,41 @@ export function ReportBuilder({ template, onSave, onExecute }: ReportBuilderProp
             Configure basic report settings and metadata
           </CardDescription>
         </CardHeader>
-        <CardContent className=\"space-y-4\">
-          <div className=\"grid gap-4 md:grid-cols-2\">
-            <div className=\"space-y-2\">
-              <Label htmlFor=\"report-name\">Report Name</Label>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="report-name">Report Name</Label>
               <Input
-                id=\"report-name\"
+                id="report-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder=\"Enter report name\"
+                placeholder="Enter report name"
               />
             </div>
             
-            <div className=\"space-y-2\">
-              <Label htmlFor=\"report-category\">Category</Label>
+            <div className="space-y-2">
+              <Label htmlFor="report-category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder=\"Select category\" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=\"inventory\">Inventory</SelectItem>
-                  <SelectItem value=\"analytics\">Analytics</SelectItem>
-                  <SelectItem value=\"user-activity\">User Activity</SelectItem>
-                  <SelectItem value=\"system\">System</SelectItem>
+                  <SelectItem value="inventory">Inventory</SelectItem>
+                  <SelectItem value="analytics">Analytics</SelectItem>
+                  <SelectItem value="user-activity">User Activity</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className=\"space-y-2\">
-            <Label htmlFor=\"report-description\">Description</Label>
+          <div className="space-y-2">
+            <Label htmlFor="report-description">Description</Label>
             <Textarea
-              id=\"report-description\"
+              id="report-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder=\"Describe what this report shows\"
+              placeholder="Describe what this report shows"
               rows={3}
             />
           </div>
@@ -143,36 +143,36 @@ export function ReportBuilder({ template, onSave, onExecute }: ReportBuilderProp
             Select the data fields to include in your report
           </CardDescription>
         </CardHeader>
-        <CardContent className=\"space-y-4\">
+        <CardContent className="space-y-4">
           <FieldSelector onAddField={addField} category={category as ReportTemplate['category']} />
           
-          <div className=\"space-y-2\">
+          <div className="space-y-2">
             <Label>Selected Fields</Label>
-            <div className=\"space-y-2\">
+            <div className="space-y-2">
               {fields.length === 0 ? (
-                <p className=\"text-sm text-muted-foreground\">No fields selected</p>
+                <p className="text-sm text-muted-foreground">No fields selected</p>
               ) : (
                 fields.map((field, index) => (
-                  <div key={index} className=\"flex items-center justify-between p-3 border rounded-lg\">
-                    <div className=\"flex items-center gap-3\">
-                      <Badge variant=\"outline\">{field.type}</Badge>
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline">{field.type}</Badge>
                       <div>
-                        <div className=\"font-medium\">{field.label}</div>
-                        <div className=\"text-sm text-muted-foreground\">{field.name}</div>
+                        <div className="font-medium">{field.label}</div>
+                        <div className="text-sm text-muted-foreground">{field.name}</div>
                       </div>
                       {field.aggregation && (
-                        <Badge variant=\"secondary\">{field.aggregation}</Badge>
+                        <Badge variant="secondary">{field.aggregation}</Badge>
                       )}
                       {field.required && (
-                        <Badge variant=\"destructive\">Required</Badge>
+                        <Badge variant="destructive">Required</Badge>
                       )}
                     </div>
                     <Button
-                      variant=\"ghost\"
-                      size=\"sm\"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeField(index)}
                     >
-                      <Trash2 className=\"h-4 w-4\" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))
@@ -190,36 +190,36 @@ export function ReportBuilder({ template, onSave, onExecute }: ReportBuilderProp
             Add filters to limit the data in your report
           </CardDescription>
         </CardHeader>
-        <CardContent className=\"space-y-4\">
+        <CardContent className="space-y-4">
           <FilterBuilder 
             fields={fields} 
             onAddFilter={addFilter}
             category={category as ReportTemplate['category']}
           />
           
-          <div className=\"space-y-2\">
+          <div className="space-y-2">
             <Label>Active Filters</Label>
-            <div className=\"space-y-2\">
+            <div className="space-y-2">
               {filters.length === 0 ? (
-                <p className=\"text-sm text-muted-foreground\">No filters applied</p>
+                <p className="text-sm text-muted-foreground">No filters applied</p>
               ) : (
                 filters.map((filter, index) => (
-                  <div key={index} className=\"flex items-center justify-between p-3 border rounded-lg\">
-                    <div className=\"flex items-center gap-3\">
-                      <Badge variant=\"outline\">{filter.operator}</Badge>
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline">{filter.operator}</Badge>
                       <div>
-                        <div className=\"font-medium\">{filter.label}</div>
-                        <div className=\"text-sm text-muted-foreground\">
+                        <div className="font-medium">{filter.label}</div>
+                        <div className="text-sm text-muted-foreground">
                           {filter.field} {filter.operator} {String(filter.value)}
                         </div>
                       </div>
                     </div>
                     <Button
-                      variant=\"ghost\"
-                      size=\"sm\"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeFilter(index)}
                     >
-                      <Trash2 className=\"h-4 w-4\" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))
@@ -231,22 +231,22 @@ export function ReportBuilder({ template, onSave, onExecute }: ReportBuilderProp
 
       {/* Actions */}
       <Card>
-        <CardContent className=\"pt-6\">
-          <div className=\"flex gap-3\">
+        <CardContent className="pt-6">
+          <div className="flex gap-3">
             <Button 
               onClick={handleSave}
               disabled={!name.trim() || fields.length === 0 || saveTemplate.isPending}
             >
-              <Save className=\"h-4 w-4 mr-2\" />
+              <Save className="h-4 w-4 mr-2" />
               Save Template
             </Button>
             
             <Button 
-              variant=\"outline\"
+              variant="outline"
               onClick={handleExecute}
               disabled={!name.trim() || fields.length === 0 || executeReport.isPending}
             >
-              <Play className=\"h-4 w-4 mr-2\" />
+              <Play className="h-4 w-4 mr-2" />
               Execute Report
             </Button>
           </div>

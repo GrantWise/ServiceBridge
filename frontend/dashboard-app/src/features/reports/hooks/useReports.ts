@@ -1,22 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportsService } from '../services/reportsService';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 import type { ReportTemplate, ReportExecution, ExportOptions } from '../types/reports.types';
 import { toast } from 'sonner';
 
 // Templates
 export function useReportTemplates() {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: ['report-templates'],
     queryFn: () => reportsService.getTemplates(),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 export function useReportTemplate(id: string) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: ['report-template', id],
     queryFn: () => reportsService.getTemplate(id),
-    enabled: !!id,
+    enabled: authInitialized && isAuthenticated && !!id,
   });
 }
 
@@ -69,10 +77,13 @@ export function useExecuteReport() {
 }
 
 export function useReportExecutionStatus(executionId: string, enabled: boolean = true) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: ['report-execution', executionId],
     queryFn: () => reportsService.getExecutionStatus(executionId),
-    enabled: enabled && !!executionId,
+    enabled: authInitialized && isAuthenticated && enabled && !!executionId,
     refetchInterval: (data) => {
       // Refetch every 2 seconds if still running
       return data?.status === 'running' || data?.status === 'pending' ? 2000 : false;

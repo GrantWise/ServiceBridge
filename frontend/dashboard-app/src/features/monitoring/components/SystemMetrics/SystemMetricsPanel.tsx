@@ -11,85 +11,29 @@ import {
   Activity,
   AlertCircle
 } from 'lucide-react';
-import { useConnectionStatus } from '@/features/shared/hooks/useSignalR';
-import { useGrpcHealth } from '@/features/shared/hooks/useGrpc';
+import { useSignalR } from '@/features/shared/hooks/useSignalR';
+import { useSystemMetrics } from '@/features/shared/hooks/useSystemMetrics';
 import { useTransactionStats } from '@/features/shared/hooks/useTransactions';
 
-interface SystemMetric {
-  name: string;
-  value: string | number;
-  status: 'healthy' | 'warning' | 'error';
-  description?: string;
-  trend?: 'up' | 'down' | 'stable';
-}
-
 export function SystemMetricsPanel() {
-  const { isConnected, connectionCount } = useConnectionStatus();
-  const { data: grpcHealth, isLoading: grpcLoading } = useGrpcHealth();
+  const { isConnected, connectionCount } = useSignalR();
   const { data: transactionStats } = useTransactionStats();
+  const { 
+    systemHealth, 
+    protocolStatus, 
+    uptime, 
+    lastUpdated, 
+    isRealData 
+  } = useSystemMetrics(connectionCount);
 
-  // Mock system metrics (in real app, these would come from monitoring APIs)
-  const systemMetrics: SystemMetric[] = [
-    {
-      name: 'API Response Time',
-      value: '145ms',
-      status: 'healthy',
-      description: '95th percentile response time',
-      trend: 'stable',
-    },
-    {
-      name: 'Database Connections',
-      value: '24/100',
-      status: 'healthy',
-      description: 'Active connections to database',
-      trend: 'stable',
-    },
-    {
-      name: 'Memory Usage',
-      value: '68%',
-      status: 'warning',
-      description: 'Server memory utilization',
-      trend: 'up',
-    },
-    {
-      name: 'Error Rate',
-      value: '0.02%',
-      status: 'healthy',
-      description: 'Requests resulting in errors',
-      trend: 'down',
-    },
-  ];
-
-  const protocolStatus = [
-    {
-      name: 'REST API',
-      status: 'healthy',
-      latency: '45ms',
-      requests: '1,247/min',
-      icon: Server,
-    },
-    {
-      name: 'SignalR',
-      status: isConnected ? 'healthy' : 'error',
-      latency: isConnected ? '12ms' : 'N/A',
-      requests: `${connectionCount} connections`,
-      icon: Wifi,
-    },
-    {
-      name: 'gRPC',
-      status: grpcHealth?.status === 'healthy' ? 'healthy' : 'warning',
-      latency: grpcHealth?.status === 'healthy' ? '23ms' : 'N/A',
-      requests: '345/min',
-      icon: Zap,
-    },
-    {
-      name: 'Database',
-      status: 'healthy',
-      latency: '8ms',
-      requests: '892/min',
-      icon: Database,
-    },
-  ];
+  // Add icons to protocol status
+  const protocolsWithIcons = protocolStatus.map(protocol => ({
+    ...protocol,
+    icon: protocol.name === 'REST API' ? Server :
+          protocol.name === 'SignalR' ? Wifi :
+          protocol.name === 'gRPC' ? Zap :
+          protocol.name === 'Database' ? Database : Server
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -125,14 +69,24 @@ export function SystemMetricsPanel() {
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
             System Health Overview
+            {!isRealData && (
+              <Badge variant="outline" className="text-xs">
+                Simulated
+              </Badge>
+            )}
           </CardTitle>
           <CardDescription>
             Real-time monitoring of system components and performance
+            {lastUpdated && (
+              <span className="block text-xs mt-1">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {systemMetrics.map((metric) => (
+            {systemHealth.map((metric) => (
               <div key={metric.name} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{metric.name}</span>
@@ -145,7 +99,10 @@ export function SystemMetricsPanel() {
                   <p className="text-xs text-muted-foreground">{metric.description}</p>
                 )}
                 {metric.name === 'Memory Usage' && (
-                  <Progress value={68} className="h-2" />
+                  <Progress value={metric.numericValue} className="h-2" />
+                )}
+                {metric.name === 'CPU Usage' && (
+                  <Progress value={metric.numericValue} className="h-2" />
                 )}
               </div>
             ))}
@@ -166,7 +123,7 @@ export function SystemMetricsPanel() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
-            {protocolStatus.map((protocol) => (
+            {protocolsWithIcons.map((protocol) => (
               <div
                 key={protocol.name}
                 className="flex items-center gap-4 p-4 border rounded-lg"
@@ -232,7 +189,7 @@ export function SystemMetricsPanel() {
             </div>
             
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">99.8%</div>
+              <div className="text-3xl font-bold text-purple-600">{uptime}%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
               <div className="text-xs text-green-600 mt-1">
                 Last 30 days

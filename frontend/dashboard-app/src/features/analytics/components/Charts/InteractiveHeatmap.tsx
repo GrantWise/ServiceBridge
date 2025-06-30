@@ -142,28 +142,28 @@ export function InteractiveHeatmap({
   return (
     <Card>
       <CardHeader>
-        <div className=\"flex items-center justify-between\">
+        <div className="flex items-center justify-between">
           <div>
-            <CardTitle className=\"flex items-center gap-2\">
-              <Thermometer className=\"h-5 w-5\" />
+            <CardTitle className="flex items-center gap-2">
+              <Thermometer className="h-5 w-5" />
               {title}
             </CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
-          <div className=\"flex items-center gap-2\">
+          <div className="flex items-center gap-2">
             <Select value={filterThreshold} onValueChange={(value: any) => setFilterThreshold(value)}>
-              <SelectTrigger className=\"w-32\">
+              <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=\"all\">All Values</SelectItem>
-                <SelectItem value=\"low\">Low Values</SelectItem>
-                <SelectItem value=\"medium\">Medium Values</SelectItem>
-                <SelectItem value=\"high\">High Values</SelectItem>
+                <SelectItem value="all">All Values</SelectItem>
+                <SelectItem value="low">Low Values</SelectItem>
+                <SelectItem value="medium">Medium Values</SelectItem>
+                <SelectItem value="high">High Values</SelectItem>
               </SelectContent>
             </Select>
-            <Badge variant=\"outline\">
-              <Filter className=\"h-3 w-3 mr-1\" />
+            <Badge variant="outline">
+              <Filter className="h-3 w-3 mr-1" />
               {filteredData.length} points
             </Badge>
           </div>
@@ -171,22 +171,22 @@ export function InteractiveHeatmap({
       </CardHeader>
       <CardContent>
         {/* Heatmap Grid */}
-        <div className=\"space-y-4\">
-          <div className=\"overflow-x-auto\">
-            <div className=\"inline-block min-w-full\">
+        <div className="space-y-4">
+          <div className="overflow-x-auto">
+            <div className="inline-block min-w-full">
               {/* Y-axis label */}
-              <div className=\"flex\">
-                <div className=\"w-16 flex items-center justify-center\">
-                  <span className=\"text-sm font-medium text-muted-foreground transform -rotate-90\">
+              <div className="flex">
+                <div className="w-16 flex items-center justify-center">
+                  <span className="text-sm font-medium text-muted-foreground transform -rotate-90">
                     {yAxisLabel}
                   </span>
                 </div>
-                <div className=\"flex-1\">
+                <div className="flex-1">
                   {/* Header with X values */}
-                  <div className=\"flex mb-2\">
-                    <div className=\"w-20\"></div>
+                  <div className="flex mb-2">
+                    <div className="w-20"></div>
                     {xValues.map(x => (
-                      <div key={x} className=\"w-16 text-center text-sm font-medium text-muted-foreground\">
+                      <div key={x} className="w-16 text-center text-sm font-medium text-muted-foreground">
                         {String(x).length > 6 ? String(x).substring(0, 6) + '...' : x}
                       </div>
                     ))}
@@ -194,8 +194,8 @@ export function InteractiveHeatmap({
                   
                   {/* Grid rows */}
                   {gridData.map((row, yIndex) => (
-                    <div key={yValues[yIndex]} className=\"flex mb-1\">
-                      <div className=\"w-20 flex items-center justify-end pr-2 text-sm font-medium text-muted-foreground\">
+                    <div key={yValues[yIndex]} className="flex mb-1">
+                      <div className="w-20 flex items-center justify-end pr-2 text-sm font-medium text-muted-foreground">
                         {String(yValues[yIndex]).length > 8 ? 
                           String(yValues[yIndex]).substring(0, 8) + '...' : 
                           yValues[yIndex]
@@ -227,77 +227,77 @@ export function InteractiveHeatmap({
               </div>
               
               {/* X-axis label */}
-              <div className=\"text-center mt-4\">
-                <span className=\"text-sm font-medium text-muted-foreground\">{xAxisLabel}</span>
+              <div className="text-center mt-4">
+                <span className="text-sm font-medium text-muted-foreground">{xAxisLabel}</span>
               </div>
             </div>
           </div>
 
           {/* Color Legend */}
-          <div className=\"flex items-center justify-center gap-4\">
-            <span className=\"text-sm font-medium\">Low</span>
-            <div className=\"flex\">
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-sm font-medium">Low</span>
+            <div className="flex">
               {Array.from({ length: 10 }, (_, i) => (
                 <div
                   key={i}
-                  className=\"w-6 h-4\"
+                  className="w-6 h-4"
                   style={{
                     backgroundColor: getCellColor(minValue + (maxValue - minValue) * (i / 9))
                   }}
                 />
               ))}
             </div>
-            <span className=\"text-sm font-medium\">High</span>
-            <div className=\"ml-4 text-sm text-muted-foreground\">
+            <span className="text-sm font-medium">High</span>
+            <div className="ml-4 text-sm text-muted-foreground">
               {formatValue(minValue)} - {formatValue(maxValue)}
             </div>
           </div>
 
           {/* Statistics */}
-          <div className=\"grid grid-cols-4 gap-4 pt-4 border-t\">
-            <div className=\"text-center\">
-              <div className=\"text-2xl font-bold\">{formatValue(minValue)}</div>
-              <div className=\"text-sm text-muted-foreground\">Minimum</div>
+          <div className="grid grid-cols-4 gap-4 pt-4 border-t">
+            <div className="text-center">
+              <div className="text-2xl font-bold">{formatValue(minValue)}</div>
+              <div className="text-sm text-muted-foreground">Minimum</div>
             </div>
-            <div className=\"text-center\">
-              <div className=\"text-2xl font-bold\">{formatValue(averageValue)}</div>
-              <div className=\"text-sm text-muted-foreground\">Average</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{formatValue(averageValue)}</div>
+              <div className="text-sm text-muted-foreground">Average</div>
             </div>
-            <div className=\"text-center\">
-              <div className=\"text-2xl font-bold\">{formatValue(maxValue)}</div>
-              <div className=\"text-sm text-muted-foreground\">Maximum</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{formatValue(maxValue)}</div>
+              <div className="text-sm text-muted-foreground">Maximum</div>
             </div>
-            <div className=\"text-center\">
-              <div className=\"text-2xl font-bold\">{data.length}</div>
-              <div className=\"text-sm text-muted-foreground\">Total Points</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{data.length}</div>
+              <div className="text-sm text-muted-foreground">Total Points</div>
             </div>
           </div>
 
           {/* Selected Cell Info */}
           {selectedCell && (
-            <div className=\"p-4 bg-muted rounded-lg\">
-              <h4 className=\"font-medium mb-2\">Selected Cell Details</h4>
-              <div className=\"grid grid-cols-2 gap-4 text-sm\">
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-medium mb-2">Selected Cell Details</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className=\"text-muted-foreground\">Position:</span>
-                  <span className=\"ml-2 font-medium\">{selectedCell.x}, {selectedCell.y}</span>
+                  <span className="text-muted-foreground">Position:</span>
+                  <span className="ml-2 font-medium">{selectedCell.x}, {selectedCell.y}</span>
                 </div>
                 <div>
-                  <span className=\"text-muted-foreground\">Value:</span>
-                  <span className=\"ml-2 font-medium\">{selectedCell.value}</span>
+                  <span className="text-muted-foreground">Value:</span>
+                  <span className="ml-2 font-medium">{selectedCell.value}</span>
                 </div>
                 {selectedCell.label && (
-                  <div className=\"col-span-2\">
-                    <span className=\"text-muted-foreground\">Label:</span>
-                    <span className=\"ml-2 font-medium\">{selectedCell.label}</span>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Label:</span>
+                    <span className="ml-2 font-medium">{selectedCell.label}</span>
                   </div>
                 )}
                 {selectedCell.metadata && Object.keys(selectedCell.metadata).length > 0 && (
-                  <div className=\"col-span-2\">
-                    <span className=\"text-muted-foreground\">Metadata:</span>
-                    <div className=\"mt-1 space-y-1\">
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Metadata:</span>
+                    <div className="mt-1 space-y-1">
                       {Object.entries(selectedCell.metadata).map(([key, value]) => (
-                        <div key={key} className=\"text-xs\">
+                        <div key={key} className="text-xs">
                           {key}: {String(value)}
                         </div>
                       ))}

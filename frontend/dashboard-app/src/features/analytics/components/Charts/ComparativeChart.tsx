@@ -106,11 +106,11 @@ export function ComparativeChart({
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'positive':
-        return <TrendingUp className=\"h-4 w-4 text-green-600\" />;
+        return <TrendingUp className="h-4 w-4 text-green-600" />;
       case 'negative':
-        return <TrendingDown className=\"h-4 w-4 text-red-600\" />;
+        return <TrendingDown className="h-4 w-4 text-red-600" />;
       default:
-        return <Minus className=\"h-4 w-4 text-gray-600\" />;
+        return <Minus className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -128,36 +128,36 @@ export function ComparativeChart({
   return (
     <Card>
       <CardHeader>
-        <div className=\"flex items-center justify-between\">
+        <div className="flex items-center justify-between">
           <div>
-            <CardTitle className=\"flex items-center gap-2\">
-              <BarChart2 className=\"h-5 w-5\" />
+            <CardTitle className="flex items-center gap-2">
+              <BarChart2 className="h-5 w-5" />
               {title}
             </CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
-          <div className=\"flex items-center gap-2\">
+          <div className="flex items-center gap-2">
             <Select value={selectedTimeRange} onValueChange={(value: any) => setSelectedTimeRange(value)}>
-              <SelectTrigger className=\"w-32\">
+              <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=\"day\">Daily</SelectItem>
-                <SelectItem value=\"week\">Weekly</SelectItem>
-                <SelectItem value=\"month\">Monthly</SelectItem>
-                <SelectItem value=\"quarter\">Quarterly</SelectItem>
-                <SelectItem value=\"year\">Yearly</SelectItem>
+                <SelectItem value="day">Daily</SelectItem>
+                <SelectItem value="week">Weekly</SelectItem>
+                <SelectItem value="month">Monthly</SelectItem>
+                <SelectItem value="quarter">Quarterly</SelectItem>
+                <SelectItem value="year">Yearly</SelectItem>
               </SelectContent>
             </Select>
             
             {showComparison && (
               <Select value={comparisonMode} onValueChange={(value: any) => setComparisonMode(value)}>
-                <SelectTrigger className=\"w-32\">
+                <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=\"absolute\">Absolute</SelectItem>
-                  <SelectItem value=\"percentage\">Percentage</SelectItem>
+                  <SelectItem value="absolute">Absolute</SelectItem>
+                  <SelectItem value="percentage">Percentage</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -165,17 +165,17 @@ export function ComparativeChart({
         </div>
 
         {/* Series Controls */}
-        <div className=\"flex flex-wrap gap-2\">
+        <div className="flex flex-wrap gap-2">
           {series.map(serie => (
             <Button
               key={serie.id}
-              variant={selectedSeries.includes(serie.id) ? \"default\" : \"outline\"}
-              size=\"sm\"
+              variant={selectedSeries.includes(serie.id) ? "default" : "outline"}
+              size="sm"
               onClick={() => toggleSeries(serie.id)}
-              className=\"flex items-center gap-2\"
+              className="flex items-center gap-2"
             >
               <div 
-                className=\"w-3 h-3 rounded-full\" 
+                className="w-3 h-3 rounded-full" 
                 style={{ backgroundColor: serie.color }}
               />
               {serie.name}
@@ -185,9 +185,9 @@ export function ComparativeChart({
       </CardHeader>
       <CardContent>
         {/* Chart */}
-        <ResponsiveContainer width=\"100%\" height={400}>
+        <ResponsiveContainer width="100%" height={400}>
           <LineChart data={combinedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray=\"3 3\" />
+            <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey={xAxisKey}
               tick={{ fontSize: 12 }}
@@ -209,7 +209,7 @@ export function ComparativeChart({
               .map(serie => (
                 <Line
                   key={serie.id}
-                  type=\"monotone\"
+                  type="monotone"
                   dataKey={serie.id}
                   stroke={serie.color}
                   strokeWidth={2}
@@ -229,7 +229,7 @@ export function ComparativeChart({
                   key={`ref-${seriesId}`}
                   y={average}
                   stroke={serie?.color}
-                  strokeDasharray=\"5 5\"
+                  strokeDasharray="5 5"
                   strokeOpacity={0.5}
                 />
               );
@@ -239,40 +239,40 @@ export function ComparativeChart({
 
         {/* Comparison Metrics */}
         {showComparison && (
-          <div className=\"mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3\">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {comparisonData.map(data => (
-              <div key={data.id} className=\"p-4 border rounded-lg\">
-                <div className=\"flex items-center justify-between mb-2\">
-                  <div className=\"flex items-center gap-2\">
+              <div key={data.id} className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
                     <div 
-                      className=\"w-3 h-3 rounded-full\" 
+                      className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: data.color }}
                     />
-                    <span className=\"font-medium\">{data.name}</span>
+                    <span className="font-medium">{data.name}</span>
                   </div>
                   {showTrends && getTrendIcon(data.trend)}
                 </div>
                 
-                <div className=\"space-y-1\">
-                  <div className=\"text-2xl font-bold\">
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold">
                     {formatValue(data.currentValue)}
                   </div>
                   
-                  <div className=\"flex items-center gap-2 text-sm\">
+                  <div className="flex items-center gap-2 text-sm">
                     <span className={`font-medium ${
                       data.changePercentage > 0 ? 'text-green-600' : 
                       data.changePercentage < 0 ? 'text-red-600' : 'text-gray-600'
                     }`}>
                       {data.changePercentage > 0 ? '+' : ''}{data.changePercentage.toFixed(1)}%
                     </span>
-                    <span className=\"text-muted-foreground\">
+                    <span className="text-muted-foreground">
                       ({data.change > 0 ? '+' : ''}{formatValue(data.change)})
                     </span>
                   </div>
                   
                   {showTrends && (
                     <Badge 
-                      variant=\"outline\" 
+                      variant="outline" 
                       className={`${
                         data.trend === 'positive' ? 'border-green-200 text-green-700' :
                         data.trend === 'negative' ? 'border-red-200 text-red-700' :
