@@ -2,6 +2,7 @@
   "dependencies": {
     "@types/dompurify": "^3.0.5",
     "dompurify": "^3.2.6",
-    "isomorphic-dompurify": "^2.25.0"
+    "isomorphic-dompurify": "^2.25.0",
+    "lodash": "^4.17.21"
   }
 }
