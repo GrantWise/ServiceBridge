@@ -252,6 +252,12 @@ app.UseAuthorization();
 // Map controllers
 app.MapControllers();
 
+// Add simple health check endpoint for load balancers
+app.MapGet("/health", () => Results.Ok(new { 
+    status = "Healthy", 
+    timestamp = DateTime.UtcNow 
+})).AllowAnonymous();
+
 // Map SignalR hub
 app.MapHub<InventoryHub>("/inventoryhub");
 
