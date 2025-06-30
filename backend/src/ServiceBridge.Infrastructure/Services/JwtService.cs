@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ServiceBridge.Application.DTOs;
 using ServiceBridge.Application.Services;
@@ -10,19 +9,26 @@ namespace ServiceBridge.Infrastructure.Services;
 
 public class JwtService : IJwtService
 {
-    private readonly IConfiguration _configuration;
+    private readonly IJwtConfigurationService _jwtConfig;
     private readonly string _secretKey;
     private readonly string _issuer;
     private readonly string _audience;
     private readonly int _expirationMinutes;
 
-    public JwtService(IConfiguration configuration)
+    public JwtService(IJwtConfigurationService jwtConfigurationService)
     {
-        _configuration = configuration;
-        _secretKey = _configuration["Jwt:SecretKey"] ?? "ServiceBridge-Super-Secret-Key-For-Development-Only-Please-Change-In-Production";
-        _issuer = _configuration["Jwt:Issuer"] ?? "ServiceBridge";
-        _audience = _configuration["Jwt:Audience"] ?? "ServiceBridge-API";
-        _expirationMinutes = int.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "60");
+        _jwtConfig = jwtConfigurationService ?? throw new ArgumentNullException(nameof(jwtConfigurationService));
+        
+        _secretKey = _jwtConfig.GetSecretKey();
+        _issuer = _jwtConfig.GetIssuer();
+        _audience = _jwtConfig.GetAudience();
+        _expirationMinutes = _jwtConfig.GetExpirationMinutes();
+
+        // Security validation for demo
+        if (!_jwtConfig.IsSecretKeySecure())
+        {
+            Console.WriteLine("⚠️  WARNING: JWT secret key may not meet production security requirements");
+        }
     }
 
     public string GenerateToken(UserDto user)
