@@ -50,6 +50,7 @@ class BaseApiService {
     this.client = axios.create({
       baseURL: config.baseURL,
       timeout: config.timeout,
+      withCredentials: true, // Include httpOnly cookies
       headers: {
         'Content-Type': 'application/json',
       },
@@ -62,11 +63,8 @@ class BaseApiService {
     // Request interceptor for auth token and security
     this.client.interceptors.request.use(
       async config => {
-        // Add auth token from authService
-        const token = authService.getAccessToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+        // Auth is now handled by httpOnly cookies automatically
+        // No need to add Authorization header
         
         // Add CSRF token for state-changing requests
         if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
@@ -128,24 +126,10 @@ class BaseApiService {
         if (error.response?.status === 401) {
           logger.warn('Authentication required or expired');
           
-          // Try to refresh token first
-          try {
-            await authService.forceRefresh();
-            // Retry the original request with new token
-            const originalRequest = error.config as ExtendedAxiosRequestConfig;
-            if (originalRequest && !originalRequest._retry) {
-              originalRequest._retry = true;
-              const token = authService.getAccessToken();
-              if (token) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              return this.client(originalRequest);
-            }
-          } catch (_refreshError) {
-            // Refresh failed, logout user
-            await authService.logout();
-            window.location.href = '/login';
-          }
+          // With httpOnly cookies, we can't refresh client-side
+          // Just logout and redirect to login
+          await authService.logout();
+          window.location.href = '/login';
         }
         
         // Handle authorization errors

@@ -56,8 +56,8 @@ export class SignalRService {
   private initializeConnection(): void {
     this.connection = new HubConnectionBuilder()
       .withUrl(this.hubUrl, {
-        withCredentials: true, // Enable for cookie-based auth in the future
-        accessTokenFactory: () => this.getAccessToken(),
+        withCredentials: true, // Use httpOnly cookies for authentication
+        // No accessTokenFactory needed with cookie-based auth
       })
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: retryContext => {
@@ -100,9 +100,8 @@ export class SignalRService {
       const sessionData = window.sessionStorage.getItem('auth_session');
       if (sessionData) {
         const authData = JSON.parse(sessionData);
-        return authData.isAuthenticated === true && 
-               authData.tokens?.accessToken && 
-               authData.tokens.expiresAt > Date.now();
+        // With httpOnly cookies, just check if user is authenticated and has a valid user object
+        return authData.isAuthenticated === true && authData.user;
       }
       return false;
     } catch (_error) {
@@ -203,21 +202,8 @@ export class SignalRService {
       return;
     }
 
-    // Check if we have an auth token before attempting connection
-    const maxRetries = 10; // Maximum retries for waiting for auth token
-    const retryDelay = 500; // 500ms delay between retries
-    
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const token = await this.getAccessToken();
-      if (token) {
-        break; // Token found, proceed with connection
-      }
-      
-      if (attempt < maxRetries - 1) {
-        // Wait before next retry
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
-    }
+    // With httpOnly cookies, no need to wait for access tokens
+    // Authentication is handled automatically by the browser
 
     try {
       this.connectionState = {

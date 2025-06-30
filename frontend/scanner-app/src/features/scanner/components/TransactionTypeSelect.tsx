@@ -6,13 +6,14 @@ import { TransactionType } from '../../../types/api';
 interface TransactionTypeSelectProps {
   value: TransactionType;
   onChange: (value: TransactionType) => void;
+  name?: string;
 }
 
 /**
  * Component for selecting transaction type
  * Follows Single Responsibility Principle - handles only transaction type selection
  */
-export const TransactionTypeSelect = memo(function TransactionTypeSelect({ value, onChange }: TransactionTypeSelectProps) {
+export const TransactionTypeSelect = memo(function TransactionTypeSelect({ value, onChange, name = "transactionType" }: TransactionTypeSelectProps) {
   const handleValueChange = (stringValue: string) => {
     onChange(parseInt(stringValue) as TransactionType);
   };
@@ -23,6 +24,7 @@ export const TransactionTypeSelect = memo(function TransactionTypeSelect({ value
       <Select
         value={value.toString()}
         onValueChange={handleValueChange}
+        name={name}
       >
         <SelectTrigger id="transactionType">
           <SelectValue />

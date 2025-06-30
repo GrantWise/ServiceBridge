@@ -14,6 +14,7 @@ interface QuantityInputProps {
   onShowKeypad: (show: boolean) => void;
   error?: string;
   register: any; // From react-hook-form - keeping as any for simplicity
+  allowNegative?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ export const QuantityInput = memo(function QuantityInput({
   onShowKeypad,
   error,
   register,
+  allowNegative = false,
 }: QuantityInputProps) {
   const quantityInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,12 +40,14 @@ export const QuantityInput = memo(function QuantityInput({
   };
 
   const handleKeypadNumberPress = (num: number) => {
-    const newQuantity = Math.max(1, Math.min(9999, quantity * 10 + num));
+    const newQuantity = allowNegative 
+      ? Math.max(-9999, Math.min(9999, quantity * 10 + num))
+      : Math.max(1, Math.min(9999, quantity * 10 + num));
     onQuantityChange(newQuantity);
   };
 
   const handleKeypadBackspace = () => {
-    const newQuantity = Math.floor(quantity / 10) || 1;
+    const newQuantity = Math.floor(quantity / 10) || (allowNegative ? 0 : 1);
     onQuantityChange(newQuantity);
   };
 
@@ -51,12 +55,25 @@ export const QuantityInput = memo(function QuantityInput({
     <div className="space-y-2">
       <Label htmlFor="quantity">Quantity</Label>
       <div className="flex items-center gap-2">
+        {allowNegative && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => onQuantityChange(-quantity)}
+            className="h-12 w-12"
+            aria-label="Toggle positive/negative"
+            title="Toggle positive/negative"
+          >
+            <span className="font-mono text-lg">±</span>
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
           size="icon"
           onClick={() => onAdjustQuantity(-10)}
-          disabled={quantity <= 10}
+          disabled={allowNegative ? Math.abs(quantity) >= 9990 : quantity <= 10}
           className="h-12 w-12"
           aria-label="Decrease quantity by 10"
         >
@@ -67,7 +84,7 @@ export const QuantityInput = memo(function QuantityInput({
           variant="outline"
           size="icon"
           onClick={() => onAdjustQuantity(-1)}
-          disabled={quantity <= 1}
+          disabled={allowNegative ? Math.abs(quantity) >= 9999 : quantity <= 1}
           className="h-12 w-12"
           aria-label="Decrease quantity by 1"
         >
@@ -77,8 +94,15 @@ export const QuantityInput = memo(function QuantityInput({
           id="quantity"
           type="number"
           {...register('quantity', { valueAsNumber: true })}
+          value={quantity}
+          onChange={(e) => {
+            const val = parseInt(e.target.value);
+            if (!isNaN(val) && (allowNegative || val > 0)) {
+              onQuantityChange(val);
+            }
+          }}
           className="text-center text-lg font-semibold h-12 w-20 scanner-input"
-          min={1}
+          min={allowNegative ? -9999 : 1}
           max={9999}
           ref={quantityInputRef}
           onFocus={handleQuantityFocus}
@@ -89,7 +113,7 @@ export const QuantityInput = memo(function QuantityInput({
           variant="outline"
           size="icon"
           onClick={() => onAdjustQuantity(1)}
-          disabled={quantity >= 9999}
+          disabled={Math.abs(quantity) >= 9999}
           className="h-12 w-12"
           aria-label="Increase quantity by 1"
         >
@@ -100,7 +124,7 @@ export const QuantityInput = memo(function QuantityInput({
           variant="outline"
           size="icon"
           onClick={() => onAdjustQuantity(10)}
-          disabled={quantity >= 9990}
+          disabled={Math.abs(quantity) >= 9990}
           className="h-12 w-12"
           aria-label="Increase quantity by 10"
         >

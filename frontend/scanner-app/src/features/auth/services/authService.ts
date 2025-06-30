@@ -111,24 +111,21 @@ class AuthService {
       
       const response = await authApi.login(credentials);
       
-      if (response.success) {
-        // Backend returns expiresAt instead of expiresIn
-        // Convert expiresAt string to timestamp if needed
+      if (response.success && response.user) {
+        // Backend returns expiresAt and token is now in httpOnly cookie
         const expiresAt = response.expiresAt ? new Date(response.expiresAt).getTime() : Date.now() + (60 * 60 * 1000); // Default 1 hour
         
         this.state = {
           isAuthenticated: true,
           user: response.user,
           tokens: {
-            accessToken: response.token,
+            accessToken: 'cookie-based', // Token is in httpOnly cookie
             refreshToken: '', // Backend doesn't provide refresh tokens
             expiresAt,
           },
         };
         
         this.saveSession();
-        // Don't schedule refresh since we don't have refresh tokens
-        // this.scheduleTokenRefresh();
         this.notifyListeners();
         
         // Notify SignalR service about login
@@ -156,8 +153,12 @@ class AuthService {
     try {
       logger.info('Logging out', { userId: this.state.user?.id });
       
-      // Backend doesn't have logout endpoint, just clear local state
-      // await authApi.logout();
+      // Call backend logout to clear httpOnly cookies
+      try {
+        await authApi.logout();
+      } catch (error) {
+        logger.warn('Backend logout failed, proceeding with local cleanup', { error: error instanceof Error ? error.message : String(error) });
+      }
       
       // Clear local state
       this.state = {

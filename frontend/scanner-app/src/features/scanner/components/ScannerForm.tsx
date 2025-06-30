@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Loader2, Package } from 'lucide-react';
@@ -34,9 +34,19 @@ const formSchema = z.object({
   quantity: z
     .number()
     .int('Quantity must be a whole number')
-    .min(1, 'Quantity must be at least 1')
-    .max(9999, 'Quantity cannot exceed 9999'),
+    .refine((val) => val !== 0, 'Quantity cannot be zero'),
   transactionType: z.nativeEnum(TransactionType),
+}).refine((data) => {
+  // For Stock Count and Receiving, quantity must be positive
+  if (data.transactionType === TransactionType.StockCount || 
+      data.transactionType === TransactionType.Receiving) {
+    return data.quantity > 0;
+  }
+  // For Adjustment, allow negative values but not zero
+  return data.quantity !== 0 && Math.abs(data.quantity) <= 9999;
+}, {
+  message: "Invalid quantity for transaction type",
+  path: ["quantity"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -63,6 +73,7 @@ export function ScannerForm({ onScanComplete, signalRService: _signalRService }:
     formState: { errors },
     setValue,
     reset,
+    control,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -75,7 +86,6 @@ export function ScannerForm({ onScanComplete, signalRService: _signalRService }:
 
   const productCode = watch('productCode') || '';
   const quantity = watch('quantity');
-  const transactionType = watch('transactionType');
 
   // Custom hooks for business logic
   const { product, isLoading, error } = useProductLookup(productCode);
@@ -97,11 +107,27 @@ export function ScannerForm({ onScanComplete, signalRService: _signalRService }:
       return;
     }
 
-    // Show confirmation for large quantity changes
-    if (quantity > 100) {
-      setPendingSubmit(values);
-      setShowConfirmDialog(true);
-      return;
+    // Show confirmation for large variance from expected quantity
+    const expectedQty = product.quantityOnHand;
+    
+    // For adjustments, check the percentage of change
+    // For stock counts, check the variance from expected
+    if (values.transactionType === TransactionType.Adjustment) {
+      // For adjustments, warn if changing by more than 20% of current stock
+      const percentageChange = Math.abs(quantity) / expectedQty;
+      if (percentageChange > 0.20) {
+        setPendingSubmit(values);
+        setShowConfirmDialog(true);
+        return;
+      }
+    } else {
+      // For stock counts and receiving, warn if variance from expected is more than 20%
+      const variance = Math.abs(quantity - expectedQty) / expectedQty;
+      if (variance > 0.20) {
+        setPendingSubmit(values);
+        setShowConfirmDialog(true);
+        return;
+      }
     }
 
     await handleScanSubmit(values);
@@ -175,11 +201,19 @@ export function ScannerForm({ onScanComplete, signalRService: _signalRService }:
               onShowKeypad={setShowKeypad}
               error={errors.quantity?.message}
               register={register}
+              allowNegative={watch('transactionType') === TransactionType.Adjustment}
             />
 
-            <TransactionTypeSelect
-              value={transactionType}
-              onChange={(type) => setValue('transactionType', type)}
+            <Controller
+              name="transactionType"
+              control={control}
+              render={({ field }) => (
+                <TransactionTypeSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  name={field.name}
+                />
+              )}
             />
 
             <Button
@@ -204,6 +238,8 @@ export function ScannerForm({ onScanComplete, signalRService: _signalRService }:
         open={showConfirmDialog}
         onOpenChange={setShowConfirmDialog}
         quantity={pendingSubmit?.quantity}
+        expectedQuantity={product?.quantityOnHand}
+        transactionType={pendingSubmit?.transactionType}
         onConfirm={handleConfirmSubmit}
       />
     </>

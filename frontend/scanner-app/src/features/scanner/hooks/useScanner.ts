@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { productsApi } from '../../shared/services/api';
 import { addScan as addOfflineScan } from '../components/OfflineQueue';
+import { authService } from '../../auth/services/authService';
 import type { Product, CreateScanRequest, TransactionType } from '../../../types/api';
 
 interface UseScannerOptions {
@@ -28,11 +29,12 @@ export function useScanner(options: UseScannerOptions = {}) {
     setSubmitting(true);
     
     try {
+      const currentUser = authService.getState().user;
       const scanRequest: CreateScanRequest = {
         productCode: product.productCode,
         quantityScanned: data.quantity,
         transactionType: data.transactionType,
-        scannedBy: 'Current User', // TODO: Get from auth context
+        scannedBy: currentUser?.fullName || currentUser?.username || 'Unknown User',
       };
 
       const response = await productsApi.submitScan(product.productCode, scanRequest);
@@ -51,12 +53,13 @@ export function useScanner(options: UseScannerOptions = {}) {
     } catch (err: unknown) {
       // Handle offline scenario
       if (!navigator.onLine) {
+        const currentUser = authService.getState().user;
         await addOfflineScan({
           id: Date.now().toString(),
           productCode: product.productCode,
           quantityScanned: data.quantity,
           transactionType: data.transactionType,
-          scannedBy: 'Current User',
+          scannedBy: currentUser?.fullName || currentUser?.username || 'Unknown User',
           createdAt: new Date().toISOString(),
         });
         toast('Scan queued for sync when online');
