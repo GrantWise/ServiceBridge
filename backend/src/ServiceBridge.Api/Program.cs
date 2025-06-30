@@ -13,6 +13,7 @@ using ServiceBridge.Api.Services;
 using ServiceBridge.Application.Services;
 using ServiceBridge.Infrastructure.Services;
 using System.Text;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,13 @@ builder.Services.AddInfrastructure();
 // Register API Services
 builder.Services.AddScoped<IConnectionTrackingService, ConnectionTrackingService>();
 builder.Services.AddHostedService<LiveMetricsService>();
+
+// Add Rate Limiting services
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.Configure<IpRateLimitPolicies>(builder.Configuration.GetSection("IpRateLimitPolicies"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -65,17 +73,34 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
     
-    // Configure JWT authentication for SignalR
+    // Configure JWT authentication for all protocols (HTTP, SignalR, gRPC)
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
-            var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
+            
+            // Priority 1: Authorization header (for API calls and gRPC)
+            // This is handled automatically by the JWT bearer middleware
+            
+            // Priority 2: Query string token (for SignalR WebSocket connections)
+            var accessToken = context.Request.Query["access_token"];
             if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/inventoryhub"))
             {
                 context.Token = accessToken;
+                return Task.CompletedTask;
             }
+            
+            // Priority 3: httpOnly cookie (for web applications)
+            // Only use cookie if no Authorization header is present
+            var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+            if (string.IsNullOrEmpty(authHeader) && 
+                context.Request.Cookies.TryGetValue("access_token", out var cookieToken) && 
+                !string.IsNullOrEmpty(cookieToken))
+            {
+                context.Token = cookieToken;
+            }
+
             return Task.CompletedTask;
         }
     };
@@ -91,13 +116,45 @@ builder.Services.AddAuthorization(options =>
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("DevelopmentCors", policy =>
+    if (builder.Environment.IsDevelopment())
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174") // Vite dev server
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials(); // Required for SignalR
-    });
+        options.AddPolicy("DevelopmentCors", policy =>
+        {
+            policy.SetIsOriginAllowed(origin => 
+                {
+                    if (string.IsNullOrEmpty(origin)) return false;
+                    
+                    try
+                    {
+                        var uri = new Uri(origin);
+                        // Allow localhost on development port range (5173-5180)
+                        return uri.Host == "localhost" && 
+                               uri.Port >= 5173 && uri.Port <= 5180;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials(); // Required for SignalR and httpOnly cookies
+        });
+    }
+    else
+    {
+        // Production CORS - restrictive and explicit
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+            ?? Array.Empty<string>();
+            
+        options.AddPolicy("ProductionCors", policy =>
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+    }
 });
 
 // Add SignalR
@@ -179,11 +236,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Enable CORS
-app.UseCors("DevelopmentCors");
+// Enable CORS (environment-aware)
+app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentCors" : "ProductionCors");
 
 // Add global exception handling
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
+// Add rate limiting (must be before authentication)
+app.UseIpRateLimiting();
 
 // Add authentication and authorization
 app.UseAuthentication();

@@ -13,8 +13,12 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, SignalRNotificationService>();
         
         // Register authentication services
+        services.AddSingleton<IJwtConfigurationService, JwtConfigurationService>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ISecurityLogger, SecurityLogger>();
+        services.AddScoped<IBruteForceProtectionService, BruteForceProtectionService>();
         
         return services;
     }
