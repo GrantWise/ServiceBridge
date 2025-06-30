@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using ServiceBridge.Application.DTOs;
+using ServiceBridge.Application.Services;
 using ServiceBridge.Domain.Interfaces;
 
 namespace ServiceBridge.Application.Commands;
@@ -10,15 +11,18 @@ public class BulkUpdateProductsCommandHandler : IRequestHandler<BulkUpdateProduc
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
     public BulkUpdateProductsCommandHandler(
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        INotificationService notificationService)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<BulkUpdateResponse> Handle(BulkUpdateProductsCommand request, CancellationToken cancellationToken)
@@ -59,6 +63,9 @@ public class BulkUpdateProductsCommandHandler : IRequestHandler<BulkUpdateProduc
             if (response.SuccessfulUpdates > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                
+                // Send notifications for successfully updated products
+                await SendNotificationsAsync(results.Where(r => r.Success && r.UpdatedProduct != null).ToList());
             }
 
             response.Results = results;
@@ -233,5 +240,26 @@ public class BulkUpdateProductsCommandHandler : IRequestHandler<BulkUpdateProduc
         }
 
         return errors;
+    }
+
+    private async Task SendNotificationsAsync(List<BulkUpdateResult> successfulResults)
+    {
+        try
+        {
+            // Send notifications for all successfully updated products
+            foreach (var result in successfulResults)
+            {
+                if (result.UpdatedProduct != null)
+                {
+                    await _notificationService.SendProductUpdatedAsync(result.UpdatedProduct);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log notification failures but don't fail the command
+            // Notifications are not critical to the business operation
+            System.Diagnostics.Debug.WriteLine($"Failed to send bulk update notifications: {ex.Message}");
+        }
     }
 }

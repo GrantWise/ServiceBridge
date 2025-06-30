@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using ServiceBridge.Application.DTOs;
+using ServiceBridge.Application.Services;
 using ServiceBridge.Domain.Interfaces;
 
 namespace ServiceBridge.Application.Commands;
@@ -10,15 +11,18 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
     public UpdateProductCommandHandler(
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        INotificationService notificationService)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<UpdateProductResponse> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -102,6 +106,9 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
             // Return updated product
             var updatedProductDto = _mapper.Map<ProductDto>(product);
 
+            // Send real-time notifications
+            await SendNotificationsAsync(updatedProductDto);
+
             return new UpdateProductResponse
             {
                 Success = true,
@@ -154,5 +161,20 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         }
 
         return errors;
+    }
+
+    private async Task SendNotificationsAsync(ProductDto updatedProduct)
+    {
+        try
+        {
+            // Send product updated notification
+            await _notificationService.SendProductUpdatedAsync(updatedProduct);
+        }
+        catch (Exception ex)
+        {
+            // Log notification failures but don't fail the command
+            // Notifications are not critical to the business operation
+            System.Diagnostics.Debug.WriteLine($"Failed to send notifications: {ex.Message}");
+        }
     }
 }

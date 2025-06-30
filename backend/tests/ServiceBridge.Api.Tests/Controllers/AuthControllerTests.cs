@@ -13,6 +13,8 @@ public class AuthControllerTests
     private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<IJwtService> _mockJwtService;
     private readonly Mock<ILogger<AuthController>> _mockLogger;
+    private readonly Mock<ISecurityLogger> _mockSecurityLogger;
+    private readonly Mock<IBruteForceProtectionService> _mockBruteForceProtection;
     private readonly AuthController _controller;
 
     public AuthControllerTests()
@@ -20,7 +22,9 @@ public class AuthControllerTests
         _mockUserService = new Mock<IUserService>();
         _mockJwtService = new Mock<IJwtService>();
         _mockLogger = new Mock<ILogger<AuthController>>();
-        _controller = new AuthController(_mockUserService.Object, _mockJwtService.Object, _mockLogger.Object);
+        _mockSecurityLogger = new Mock<ISecurityLogger>();
+        _mockBruteForceProtection = new Mock<IBruteForceProtectionService>();
+        _controller = new AuthController(_mockUserService.Object, _mockJwtService.Object, _mockLogger.Object, _mockSecurityLogger.Object, _mockBruteForceProtection.Object);
     }
 
     [Fact]
