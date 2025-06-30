@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { transactionsApi } from '../services/api/transactions.api';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 import {
   ScanTransaction,
   GetTransactionsQuery,
@@ -19,28 +20,39 @@ export const TRANSACTIONS_QUERY_KEYS = {
 
 // Hook for getting paginated transactions
 export function useTransactions(query: GetTransactionsQuery = {}) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: TRANSACTIONS_QUERY_KEYS.list(query),
     queryFn: () => transactionsApi.getTransactions(query),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
 // Hook for getting transactions for a specific product
 export function useProductTransactions(productCode: string, limit: number = 20) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: TRANSACTIONS_QUERY_KEYS.product(productCode),
     queryFn: () => transactionsApi.getProductTransactions(productCode, limit),
-    enabled: !!productCode,
+    enabled: authInitialized && isAuthenticated && !!productCode,
     staleTime: 1000 * 60, // 1 minute
   });
 }
 
 // Hook for getting recent transactions (for activity feed)
 export function useRecentTransactions(limit: number = 50) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: TRANSACTIONS_QUERY_KEYS.recent(limit),
     queryFn: () => transactionsApi.getRecentTransactions(limit),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 30, // 30 seconds for real-time feel
     refetchInterval: 1000 * 60, // Auto-refetch every minute
   });
@@ -48,19 +60,26 @@ export function useRecentTransactions(limit: number = 50) {
 
 // Hook for getting user transactions
 export function useUserTransactions(userId: string, limit: number = 50) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: TRANSACTIONS_QUERY_KEYS.user(userId),
     queryFn: () => transactionsApi.getUserTransactions(userId, limit),
-    enabled: !!userId,
+    enabled: authInitialized && isAuthenticated && !!userId,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
 // Hook for getting transaction statistics
 export function useTransactionStats(startDate?: string, endDate?: string) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: TRANSACTIONS_QUERY_KEYS.stats(startDate, endDate),
     queryFn: () => transactionsApi.getTransactionStats(startDate, endDate),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

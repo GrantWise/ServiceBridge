@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { productsApi } from '../services/api/products.api';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 import {
   Product,
-  PaginatedResponse,
   GetProductsQuery,
   UpdateProductRequest,
   BulkUpdateRequest,
@@ -24,38 +24,52 @@ export const PRODUCTS_QUERY_KEYS = {
 
 // Hook for getting paginated products
 export function useProducts(query: GetProductsQuery = {}) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: PRODUCTS_QUERY_KEYS.list(query),
     queryFn: () => productsApi.getProducts(query),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 // Hook for getting a single product
 export function useProduct(productCode: string) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: PRODUCTS_QUERY_KEYS.detail(productCode),
     queryFn: () => productsApi.getProduct(productCode),
-    enabled: !!productCode,
+    enabled: authInitialized && isAuthenticated && !!productCode,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
 // Hook for searching products
 export function useProductSearch(searchQuery: string, enabled: boolean = true) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: PRODUCTS_QUERY_KEYS.search(searchQuery),
     queryFn: () => productsApi.searchProducts(searchQuery),
-    enabled: enabled && searchQuery.length > 0,
+    enabled: authInitialized && isAuthenticated && enabled && searchQuery.length > 0,
     staleTime: 1000 * 60, // 1 minute
   });
 }
 
 // Hook for getting products by stock status
 export function useProductsByStatus(stockStatus: StockStatus) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: PRODUCTS_QUERY_KEYS.byStatus(stockStatus),
     queryFn: () => productsApi.getProductsByStockStatus(stockStatus),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }

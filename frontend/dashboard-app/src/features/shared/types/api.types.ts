@@ -1,34 +1,54 @@
 // Product Types
 export interface Product {
   productCode: string;
+  name?: string; // Display name for the product
   description: string;
   quantityOnHand: number;
+  stockLevel?: number; // Alias for quantityOnHand for compatibility
+  price?: number; // Sale price
+  costPrice?: number; // Cost price
   averageMonthlyConsumption: number;
   leadTimeDays: number;
   quantityOnOrder: number;
+  minStockLevel?: number; // Minimum stock level
+  maxStockLevel?: number; // Maximum stock level
   lastUpdated: string;
   lastUpdatedBy: string;
   daysCoverRemaining: number;
   reorderPoint: number;
   stockStatus: StockStatus;
+  category?: string; // Product category
+  supplier?: string; // Supplier name
+  location?: string; // Storage location
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export enum StockStatus {
-  Normal = 0,
+  OutOfStock = 0,
+  LowStock = 1,
+  InStock = 2,
+  Overstocked = 3,
+  Discontinued = 4,
+  // Legacy compatibility
   Low = 1,
-  Critical = 2,
-  Overstock = 3
+  Adequate = 2,
 }
 
 export enum TransactionType {
+  StockIn = 0,
+  StockOut = 1,
+  StockAdjustment = 2,
+  StockTransfer = 3,
+  // Legacy compatibility
   StockCount = 0,
-  Adjustment = 1,
-  Receiving = 2
+  Adjustment = 2,
+  Receiving = 0
 }
 
 // API Request/Response Types
 export interface PaginatedResponse<T> {
-  items: T[];
+  data: T[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;
@@ -47,12 +67,22 @@ export interface GetProductsQuery {
 }
 
 export interface UpdateProductRequest {
-  productCode: string;
+  productCode?: string;
+  name?: string;
   description?: string;
   quantityOnHand?: number;
+  stockLevel?: number; // Alias for quantityOnHand
+  price?: number;
+  costPrice?: number;
   averageMonthlyConsumption?: number;
   leadTimeDays?: number;
   quantityOnOrder?: number;
+  minStockLevel?: number;
+  maxStockLevel?: number;
+  stockStatus?: StockStatus;
+  category?: string;
+  supplier?: string;
+  location?: string;
   updatedBy?: string;
 }
 
@@ -63,7 +93,7 @@ export interface UpdateProductResponse {
 }
 
 export interface BulkUpdateRequest {
-  products: UpdateProductRequest[];
+  updates: UpdateProductRequest[];
   updatedBy?: string;
 }
 
@@ -77,10 +107,12 @@ export interface BulkUpdateResponse {
 }
 
 export interface CreateScanRequest {
-  quantityScanned: number;
+  quantity?: number; // New field name
+  quantityScanned?: number; // Legacy compatibility
   transactionType: TransactionType;
-  scannedBy: string;
+  scannedBy?: string;
   notes?: string;
+  location?: string;
 }
 
 export interface CreateScanResponse {

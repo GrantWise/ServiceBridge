@@ -2,7 +2,7 @@
 // Note: This is a simplified implementation that would normally use generated gRPC client code
 // For now, we'll create a client that makes HTTP calls to a gRPC-Web gateway
 
-import { TokenService } from '@/features/auth/services/tokenService';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 import {
   ProcessScanRequest,
   ProcessScanResponse,
@@ -30,11 +30,6 @@ class GrpcClient {
     method: string,
     data: any
   ): Promise<T> {
-    const token = TokenService.getToken();
-    if (!token || TokenService.isTokenExpired(token)) {
-      throw new Error('No valid authentication token');
-    }
-
     // For now, we'll use HTTP endpoints that the gRPC services expose
     // In a real implementation, this would use gRPC-Web protocol
     const url = `${this.baseUrl}/grpc/${service}/${method}`;
@@ -43,9 +38,9 @@ class GrpcClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
         'grpc-web': 'true', // Indicate this is a gRPC-Web request
       },
+      credentials: 'include', // Use httpOnly cookies for auth
       body: JSON.stringify(data),
     });
 

@@ -135,9 +135,10 @@ class UsersService {
   // User Statistics
   async getUserStats(): Promise<UserStats> {
     try {
-      const response = await apiClient.get('/api/v1/users/stats');
-      return response.data;
+      const response = await apiClient.get('/users/stats');
+      return response;
     } catch (error) {
+      console.warn('User stats API failed, using fallback:', error);
       const users = this.getMockUsers();
       return {
         total: users.length,

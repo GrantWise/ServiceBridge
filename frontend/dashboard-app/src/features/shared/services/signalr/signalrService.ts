@@ -1,5 +1,5 @@
 import * as signalR from '@microsoft/signalr';
-import { TokenService } from '@/features/auth/services/tokenService';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 
 export interface SignalREventHandler<T = any> {
   (data: T): void;
@@ -27,21 +27,21 @@ class SignalRService {
   }
 
   private setupConnection() {
-    const hubUrl = import.meta.env.VITE_SIGNALR_URL || 'https://localhost:7001/inventoryhub';
+    const hubUrl = import.meta.env.VITE_SIGNALR_URL || 'http://localhost:5196/inventoryhub';
     
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
-        accessTokenFactory: () => {
-          const token = TokenService.getToken();
-          if (!token || TokenService.isTokenExpired(token)) {
-            throw new Error('No valid token available');
-          }
-          return token;
-        },
+        withCredentials: true, // Use httpOnly cookies for auth
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
       })
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (retryContext) => {
+          // Check if user is still authenticated
+          const authState = useAuthStore.getState();
+          if (!authState.isAuthenticated) {
+            return null; // Stop reconnecting if not authenticated
+          }
+          
           // Exponential backoff with jitter
           const delay = Math.min(
             this.baseReconnectDelay * Math.pow(2, retryContext.previousRetryCount),
@@ -64,7 +64,11 @@ class SignalRService {
       console.warn('SignalR connection closed:', error);
       this.notifyConnectionChange();
       
-      if (error) {
+      // Check if it's an auth error
+      if (error && error.message?.includes('401')) {
+        // Emit unauthorized event for auth system to handle
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      } else if (error) {
         this.scheduleReconnect();
       }
     });
@@ -83,14 +87,64 @@ class SignalRService {
       this.rejoinGroups();
     });
 
-    // Handle authentication errors
-    this.connection.onclose((error) => {
-      if (error?.message?.includes('Unauthorized') || error?.message?.includes('401')) {
-        console.error('SignalR authentication failed:', error);
-        TokenService.clearAll();
-        window.location.href = '/login';
-      }
+    // Register business event handlers
+    this.setupBusinessEventHandlers();
+  }
+
+  private setupBusinessEventHandlers() {
+    if (!this.connection) return;
+
+    // Connection count updates
+    this.connection.on('connectioncountupdated', (count: number) => {
+      console.log('Connection count updated:', count);
+      // Update the store directly using dynamic import
+      import('@/features/shared/hooks/useSignalR')
+        .then(({ useSignalRStore }) => {
+          useSignalRStore.getState().setConnectionCount(count);
+        })
+        .catch((error) => {
+          console.warn('Could not update connection count in store:', error);
+        });
     });
+
+    // User connection events
+    this.connection.on('userconnected', (userId: string) => {
+      console.log('User connected:', userId);
+    });
+
+    this.connection.on('userdisconnected', (userId: string) => {
+      console.log('User disconnected:', userId);
+    });
+
+    // Group events
+    this.connection.on('joinedgroup', (groupName: string) => {
+      console.log('Joined group:', groupName);
+    });
+
+    this.connection.on('leftgroup', (groupName: string) => {
+      console.log('Left group:', groupName);
+    });
+
+    // Product/Inventory events - these handle the business logic
+    this.connection.on('ProductUpdated', (product: any) => {
+      console.log('Product updated via SignalR:', product);
+      this.notifyProductUpdate(product);
+    });
+
+    this.connection.on('ScanProcessed', (scanData: any) => {
+      console.log('Scan processed via SignalR:', scanData);
+      this.notifyScanProcessed(scanData);
+    });
+  }
+
+  private notifyProductUpdate(product: any) {
+    // Emit custom event that can be listened to by React components
+    window.dispatchEvent(new CustomEvent('signalr:productUpdated', { detail: product }));
+  }
+
+  private notifyScanProcessed(scanData: any) {
+    // Emit custom event that can be listened to by React components  
+    window.dispatchEvent(new CustomEvent('signalr:scanProcessed', { detail: scanData }));
   }
 
   private scheduleReconnect() {
@@ -123,7 +177,9 @@ class SignalRService {
       this.setupConnection();
     }
 
-    if (this.connection?.state === signalR.HubConnectionState.Connected) {
+    // Don't try to connect if already connected or connecting
+    if (this.connection?.state === signalR.HubConnectionState.Connected ||
+        this.connection?.state === signalR.HubConnectionState.Connecting) {
       return;
     }
 
@@ -228,7 +284,7 @@ class SignalRService {
       isConnected: state === signalR.HubConnectionState.Connected,
       isConnecting: state === signalR.HubConnectionState.Connecting,
       isDisconnected: state === signalR.HubConnectionState.Disconnected,
-      connectionId: this.connection?.connectionId,
+      connectionId: this.connection?.connectionId || undefined,
     };
   }
 
@@ -265,7 +321,7 @@ class SignalRService {
   }
 
   getConnectionId(): string | undefined {
-    return this.connection?.connectionId;
+    return this.connection?.connectionId || undefined;
   }
 
   async getConnectionCount(): Promise<number> {

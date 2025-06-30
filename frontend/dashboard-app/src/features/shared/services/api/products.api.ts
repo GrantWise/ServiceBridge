@@ -23,38 +23,38 @@ export const productsApi = {
       sortDirection: query.sortDirection,
     };
 
-    return apiClient.get<PaginatedResponse<Product>>('/api/v1/products', { params });
+    return apiClient.get<PaginatedResponse<Product>>('/products', { params });
   },
 
   // Get single product by code
   async getProduct(productCode: string): Promise<Product> {
-    return apiClient.get<Product>(`/api/v1/products/${encodeURIComponent(productCode)}`);
+    return apiClient.get<Product>(`/products/${encodeURIComponent(productCode)}`);
   },
 
   // Update single product
   async updateProduct(productCode: string, request: UpdateProductRequest): Promise<UpdateProductResponse> {
     return apiClient.put<UpdateProductResponse>(
-      `/api/v1/products/${encodeURIComponent(productCode)}`,
+      `/products/${encodeURIComponent(productCode)}`,
       request
     );
   },
 
   // Bulk update products
   async bulkUpdateProducts(request: BulkUpdateRequest): Promise<BulkUpdateResponse> {
-    return apiClient.put<BulkUpdateResponse>('/api/v1/products/bulk', request);
+    return apiClient.put<BulkUpdateResponse>('/products/bulk', request);
   },
 
   // Process scan transaction
   async processScan(productCode: string, request: CreateScanRequest): Promise<CreateScanResponse> {
     return apiClient.post<CreateScanResponse>(
-      `/api/v1/products/${encodeURIComponent(productCode)}/scan`,
+      `/products/${encodeURIComponent(productCode)}/scan`,
       request
     );
   },
 
   // Search products (for autocomplete/typeahead)
   async searchProducts(search: string, limit: number = 10): Promise<Product[]> {
-    const response = await apiClient.get<PaginatedResponse<Product>>('/api/v1/products', {
+    const response = await apiClient.get<PaginatedResponse<Product>>('/products', {
       params: {
         search,
         pageSize: limit,
@@ -62,12 +62,12 @@ export const productsApi = {
       },
     });
     
-    return response.items;
+    return response.data;
   },
 
   // Get products by stock status
   async getProductsByStockStatus(stockStatus: number): Promise<Product[]> {
-    const response = await apiClient.get<PaginatedResponse<Product>>('/api/v1/products', {
+    const response = await apiClient.get<PaginatedResponse<Product>>('/products', {
       params: {
         stockStatus,
         pageSize: 1000, // Get all products with this status
@@ -75,7 +75,7 @@ export const productsApi = {
       },
     });
     
-    return response.items;
+    return response.data;
   },
 };
 

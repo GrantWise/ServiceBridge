@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { TokenService } from '@/features/auth/services/tokenService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5196/api/v1';
 
 export class ApiClient {
   private instance: AxiosInstance;
@@ -13,20 +12,16 @@ export class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // Use httpOnly cookies for authentication
     });
 
     this.setupInterceptors();
   }
 
   private setupInterceptors() {
-    // Request interceptor to add auth token
+    // Request interceptor for logging
     this.instance.interceptors.request.use(
       (config) => {
-        const token = TokenService.getToken();
-        if (token && !TokenService.isTokenExpired(token)) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-
         // Log request for debugging
         console.debug('API Request:', {
           method: config.method?.toUpperCase(),
@@ -42,7 +37,7 @@ export class ApiClient {
       }
     );
 
-    // Response interceptor for error handling
+    // Response interceptor for unified response handling and error handling
     this.instance.interceptors.response.use(
       (response: AxiosResponse) => {
         console.debug('API Response:', {
@@ -50,33 +45,19 @@ export class ApiClient {
           url: response.config.url,
           data: response.data,
         });
+        
+        // Unified response unwrapping - handle backend inconsistencies
+        response.data = this.unwrapResponse(response.data);
+        
         return response;
       },
       async (error) => {
-        const originalRequest = error.config;
-
-        // Handle 401 errors (unauthorized)
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-
-          try {
-            // Try to refresh token (when backend supports it)
-            const refreshed = await this.refreshToken();
-            if (refreshed) {
-              const token = TokenService.getToken();
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              return this.instance(originalRequest);
-            }
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-          }
-
-          // If refresh fails, clear auth and redirect to login
-          TokenService.clearAll();
-          window.location.href = '/login';
-          return Promise.reject(error);
+        // Handle authentication errors
+        if (error.response?.status === 401) {
+          // Unauthorized - emit event for auth system to handle
+          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         }
-
+        
         // Log error for debugging
         console.error('API Error:', {
           status: error.response?.status,
@@ -100,6 +81,39 @@ export class ApiClient {
       console.error('Error refreshing token:', error);
       return false;
     }
+  }
+
+  /**
+   * Unified response unwrapping to handle backend inconsistencies
+   * This centralizes the logic for different response structures
+   */
+  private unwrapResponse<T = any>(data: any): T {
+    // Handle null/undefined data
+    if (data === null || data === undefined) {
+      return data;
+    }
+    
+    // Handle non-object data (primitives, arrays, etc.)
+    if (typeof data !== 'object') {
+      return data;
+    }
+    
+    // Handle wrapped success response: { success: true, data: {...} }
+    if ('success' in data && 'data' in data && data.success) {
+      return data.data;
+    }
+    
+    // Handle paginated response with array data
+    if ('data' in data && Array.isArray(data.data)) {
+      return {
+        ...data,
+        items: data.data, // Add expected 'items' property
+        data: data.data   // Keep original 'data' property for backward compatibility
+      } as T;
+    }
+    
+    // Handle direct object responses (most common case)
+    return data;
   }
 
   // HTTP Methods

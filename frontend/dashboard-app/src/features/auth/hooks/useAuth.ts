@@ -1,14 +1,16 @@
 import { create } from 'zustand';
 import { AuthState, User } from '../types/auth.types';
 import { authService } from '../services/authService';
-import { TokenService } from '../services/tokenService';
+import { useEffect } from 'react';
 
 interface AuthStore extends AuthState {
+  authInitialized: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   checkAuth: () => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
+  handleUnauthorized: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -17,6 +19,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  authInitialized: false,
 
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
@@ -24,14 +27,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const response = await authService.login({ email, password });
       
-      if (response.success && response.user && response.token) {
+      if (response.success && response.user) {
+        // Update local state
         set({
           user: response.user,
-          token: response.token,
+          token: response.token || 'cookie-based', // Placeholder since token is in httpOnly cookie
           isAuthenticated: true,
           isLoading: false,
-          error: null
+          error: null,
+          authInitialized: true
         });
+
         
         return { success: true, message: response.message };
       } else {
@@ -59,8 +65,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
-  logout: () => {
-    authService.logout();
+  logout: async () => {
+    set({ isLoading: true });
+    
+    await authService.logout();
     set({
       user: null,
       token: null,
@@ -74,73 +82,54 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true });
     
     try {
-      // Check if we have a token and it's not expired
-      const token = TokenService.getToken();
-      const cachedUser = TokenService.getUser();
+      // With httpOnly cookies, we can't check token expiry client-side
+      // Just try to get current user from server
+      const user = await authService.getCurrentUser();
       
-      if (!token || TokenService.isTokenExpired(token)) {
-        // Token expired or missing, clear everything
+      if (user) {
+        set({
+          user,
+          token: 'cookie-based', // Placeholder since token is in httpOnly cookie
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          authInitialized: true
+        });
+
+      } else {
+        // Server says user is invalid, clear everything
         authService.logout();
         set({
           user: null,
           token: null,
           isAuthenticated: false,
           isLoading: false,
-          error: null
+          error: null,
+          authInitialized: true
         });
-        return;
-      }
-
-      // If we have a valid token and cached user, use them
-      if (cachedUser) {
-        set({
-          user: cachedUser,
-          token,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null
-        });
-        
-        // Optionally verify with server in background
-        authService.getCurrentUser().then(user => {
-          if (user) {
-            set({ user });
-          }
-        });
-      } else {
-        // No cached user, fetch from server
-        const user = await authService.getCurrentUser();
-        
-        if (user) {
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null
-          });
-        } else {
-          // Server says user is invalid, clear everything
-          authService.logout();
-          set({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error: null
-          });
-        }
       }
     } catch (error) {
-      // On error, clear auth state
-      authService.logout();
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: 'Authentication check failed'
-      });
+      // Only clear auth state if there's no existing user
+      // This prevents clearing auth on network errors after successful login
+      const currentState = get();
+      if (!currentState.user) {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+          authInitialized: true
+        });
+      } else {
+        // User exists but auth check failed - probably a network issue
+        // Keep the user logged in but stop loading
+        set({
+          isLoading: false,
+          error: null,
+          authInitialized: true
+        });
+      }
     }
   },
 
@@ -150,12 +139,47 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   setLoading: (loading: boolean) => {
     set({ isLoading: loading });
+  },
+
+  handleUnauthorized: () => {
+    // Clear auth state and redirect to login
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null
+    });
+    
+    // Redirect to login page
+    window.location.href = '/login';
   }
 }));
+
+// Hook to set up auth event listeners
+export const useAuthEvents = () => {
+  const handleUnauthorized = useAuthStore(state => state.handleUnauthorized);
+  
+  useEffect(() => {
+    const handleUnauthorizedEvent = () => {
+      handleUnauthorized();
+    };
+    
+    window.addEventListener('auth:unauthorized', handleUnauthorizedEvent);
+    
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorizedEvent);
+    };
+  }, [handleUnauthorized]);
+};
 
 // Convenience hooks for specific auth checks
 export const useAuth = () => {
   const auth = useAuthStore();
+  
+  // Set up auth event listeners
+  useAuthEvents();
+  
   return auth;
 };
 

@@ -12,6 +12,12 @@ interface SignalRStore {
   setConnectionState: (state: ConnectionState) => void;
   connectionCount: number;
   setConnectionCount: (count: number) => void;
+  autoRefreshEnabled: boolean;
+  setAutoRefreshEnabled: (enabled: boolean) => void;
+  autoRefreshInterval: number;
+  setAutoRefreshInterval: (interval: number) => void;
+  lastProductUpdate: number;
+  setLastProductUpdate: (timestamp: number) => void;
 }
 
 export const useSignalRStore = create<SignalRStore>((set) => ({
@@ -19,113 +25,111 @@ export const useSignalRStore = create<SignalRStore>((set) => ({
   setConnectionState: (state) => set({ connectionState: state }),
   connectionCount: 0,
   setConnectionCount: (count) => set({ connectionCount: count }),
+  autoRefreshEnabled: true,
+  setAutoRefreshEnabled: (enabled) => set({ autoRefreshEnabled: enabled }),
+  autoRefreshInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
+  setAutoRefreshInterval: (interval) => set({ autoRefreshInterval: interval }),
+  lastProductUpdate: 0,
+  setLastProductUpdate: (timestamp) => set({ lastProductUpdate: timestamp }),
 }));
 
-// Main SignalR hook
+// Main SignalR hook - only provides connection state, doesn't initialize
 export function useSignalR() {
   const queryClient = useQueryClient();
-  const { connectionState, setConnectionState, connectionCount, setConnectionCount } = useSignalRStore();
+  const { 
+    connectionState, 
+    connectionCount, 
+    autoRefreshEnabled, 
+    autoRefreshInterval,
+    lastProductUpdate,
+    setLastProductUpdate 
+  } = useSignalRStore();
   const connectionStateUnsubscribeRef = useRef<(() => void) | null>(null);
 
-  // Connect to SignalR on mount
+  // Subscribe to connection state changes only (no connection initialization)
   useEffect(() => {
-    const connect = async () => {
-      try {
-        await signalrService.connect();
-        
-        // Join default groups
-        await signalrService.joinGroup('inventory');
-        await signalrService.joinGroup('system');
-        
-        // Get initial connection count
-        const count = await signalrService.getConnectionCount();
-        setConnectionCount(count);
-      } catch (error) {
-        console.error('Failed to initialize SignalR:', error);
-      }
-    };
-
-    connect();
-
     // Subscribe to connection state changes
-    connectionStateUnsubscribeRef.current = signalrService.onConnectionStateChange(setConnectionState);
+    connectionStateUnsubscribeRef.current = signalrService.onConnectionStateChange(
+      useSignalRStore.getState().setConnectionState
+    );
+
+    // Get current connection state
+    const currentState = signalrService.getConnectionState();
+    useSignalRStore.getState().setConnectionState(currentState);
 
     // Cleanup on unmount
     return () => {
       connectionStateUnsubscribeRef.current?.();
-      signalrService.disconnect();
     };
-  }, [setConnectionState, setConnectionCount]);
+  }, []); // Empty dependency array - only run once on mount
 
-  // Setup global event handlers
+  // Listen for SignalR events via custom window events (to avoid registration timing issues)
   useEffect(() => {
-    const unsubscribers: Array<() => void> = [];
+    const handleProductUpdate = (event: CustomEvent) => {
+      const product = event.detail;
+      console.log('Product updated via SignalR:', product);
+      
+      if (!autoRefreshEnabled) {
+        console.log('Auto-refresh disabled, skipping query invalidation');
+        toast.info(`Product ${product.productCode} was updated (auto-refresh disabled)`);
+        return;
+      }
 
-    // Product update events
-    unsubscribers.push(
-      signalrService.on('ProductUpdated', (product) => {
-        console.log('Product updated via SignalR:', product);
-        
-        // Invalidate product queries to refresh data
-        queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEYS.all });
-        
-        // Show notification
-        toast.info(`Product ${product.productCode} was updated`);
-      })
-    );
-
-    // Scan processed events
-    unsubscribers.push(
-      signalrService.on('ScanProcessed', (scanData) => {
-        console.log('Scan processed via SignalR:', scanData);
-        
-        // Invalidate both product and transaction queries
-        queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEYS.all });
-        queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEYS.all });
-        
-        // Show notification
-        toast.success(`Scan processed for ${scanData.productCode}`);
-      })
-    );
-
-    // Connection count updates
-    unsubscribers.push(
-      signalrService.on('ConnectionCountUpdated', (count: number) => {
-        setConnectionCount(count);
-      })
-    );
-
-    // User connection events
-    unsubscribers.push(
-      signalrService.on('UserConnected', (userId: string) => {
-        console.log('User connected:', userId);
-      })
-    );
-
-    unsubscribers.push(
-      signalrService.on('UserDisconnected', (userId: string) => {
-        console.log('User disconnected:', userId);
-      })
-    );
-
-    // Group events
-    unsubscribers.push(
-      signalrService.on('JoinedGroup', (groupName: string) => {
-        console.log('Joined group:', groupName);
-      })
-    );
-
-    unsubscribers.push(
-      signalrService.on('LeftGroup', (groupName: string) => {
-        console.log('Left group:', groupName);
-      })
-    );
-
-    // Cleanup event handlers
-    return () => {
-      unsubscribers.forEach(unsubscribe => unsubscribe());
+      const now = Date.now();
+      const timeSinceLastUpdate = now - lastProductUpdate;
+      
+      if (timeSinceLastUpdate < autoRefreshInterval) {
+        console.log(`Throttling product update - ${timeSinceLastUpdate}ms since last update`);
+        toast.info(`Product ${product.productCode} was updated (throttled)`);
+        return;
+      }
+      
+      // Update timestamp and invalidate queries
+      setLastProductUpdate(now);
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEYS.all });
+      
+      // Show notification
+      toast.info(`Product ${product.productCode} was updated`);
     };
-  }, [queryClient, setConnectionCount]);
+
+    const handleScanProcessed = (event: CustomEvent) => {
+      const scanData = event.detail;
+      console.log('Scan processed via SignalR:', scanData);
+      
+      if (!autoRefreshEnabled) {
+        console.log('Auto-refresh disabled, skipping query invalidation');
+        toast.success(`Scan processed for ${scanData.productCode} (auto-refresh disabled)`);
+        return;
+      }
+
+      const now = Date.now();
+      const timeSinceLastUpdate = now - lastProductUpdate;
+      
+      if (timeSinceLastUpdate < autoRefreshInterval) {
+        console.log(`Throttling scan update - ${timeSinceLastUpdate}ms since last update`);
+        toast.success(`Scan processed for ${scanData.productCode} (throttled)`);
+        return;
+      }
+      
+      // Update timestamp and invalidate queries
+      setLastProductUpdate(now);
+      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TRANSACTIONS_QUERY_KEYS.all });
+      
+      // Show notification
+      toast.success(`Scan processed for ${scanData.productCode}`);
+    };
+
+    // Listen for custom events from SignalR service
+    window.addEventListener('signalr:productUpdated', handleProductUpdate as EventListener);
+    window.addEventListener('signalr:scanProcessed', handleScanProcessed as EventListener);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('signalr:productUpdated', handleProductUpdate as EventListener);
+      window.removeEventListener('signalr:scanProcessed', handleScanProcessed as EventListener);
+    };
+  }, [queryClient, autoRefreshEnabled, autoRefreshInterval, lastProductUpdate, setLastProductUpdate]);
 
   const joinGroup = useCallback(async (groupName: string) => {
     try {
@@ -149,6 +153,8 @@ export function useSignalR() {
     connectionCount,
     isConnected: connectionState.isConnected,
     isConnecting: connectionState.isConnecting,
+    autoRefreshEnabled,
+    autoRefreshInterval,
     joinGroup,
     leaveGroup,
     invoke: signalrService.invoke.bind(signalrService),
@@ -204,5 +210,30 @@ export function useSignalRSender() {
   return {
     sendToGroup,
     broadcastToAll,
+  };
+}
+
+// Hook for managing auto-refresh settings
+export function useAutoRefreshSettings() {
+  const { 
+    autoRefreshEnabled, 
+    autoRefreshInterval, 
+    setAutoRefreshEnabled, 
+    setAutoRefreshInterval 
+  } = useSignalRStore();
+
+  const toggleAutoRefresh = useCallback(() => {
+    setAutoRefreshEnabled(!autoRefreshEnabled);
+  }, [autoRefreshEnabled, setAutoRefreshEnabled]);
+
+  const setRefreshInterval = useCallback((minutes: number) => {
+    setAutoRefreshInterval(minutes * 60 * 1000); // Convert to milliseconds
+  }, [setAutoRefreshInterval]);
+
+  return {
+    autoRefreshEnabled,
+    autoRefreshInterval: autoRefreshInterval / 60 / 1000, // Return in minutes
+    toggleAutoRefresh,
+    setRefreshInterval,
   };
 }

@@ -4,40 +4,40 @@ const USER_KEY = 'servicebridge_user';
 
 export class TokenService {
   static getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   }
 
   static setToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
+    sessionStorage.setItem(TOKEN_KEY, token);
   }
 
   static removeToken(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
   }
 
   static getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return sessionStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
   static setRefreshToken(token: string): void {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
   }
 
   static removeRefreshToken(): void {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
   }
 
   static getUser(): any | null {
-    const user = localStorage.getItem(USER_KEY);
+    const user = sessionStorage.getItem(USER_KEY);
     return user ? JSON.parse(user) : null;
   }
 
   static setUser(user: any): void {
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   static removeUser(): void {
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(USER_KEY);
   }
 
   static clearAll(): void {

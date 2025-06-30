@@ -1,24 +1,21 @@
-import axios from 'axios';
+import { apiClient } from '@/features/shared/services/api/apiClient';
 import { LoginRequest, LoginResponse, User, TokenValidationResponse } from '../types/auth.types';
 import { TokenService } from './tokenService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7001';
-
 class AuthService {
-  private baseURL = `${API_BASE_URL}/api/v1/auth`;
-
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      const response = await axios.post<LoginResponse>(`${this.baseURL}/login`, credentials);
+      const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
       
-      if (response.data.success && response.data.token && response.data.user) {
-        TokenService.setToken(response.data.token);
-        TokenService.setUser(response.data.user);
+      if (response.success && response.user) {
+        // Token is now in httpOnly cookie, just store user data
+        TokenService.setUser(response.user);
+        // Don't store token in sessionStorage since it's in httpOnly cookie
       }
       
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
+      return response;
+    } catch (error: any) {
+      if (error.response?.data) {
         return error.response.data as LoginResponse;
       }
       
@@ -31,39 +28,22 @@ class AuthService {
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const token = TokenService.getToken();
-      if (!token || TokenService.isTokenExpired(token)) {
-        return null;
-      }
-
-      const response = await axios.get<User>(`${this.baseURL}/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      const user = response.data;
+      const user = await apiClient.get<User>('/auth/me');
       TokenService.setUser(user);
       return user;
-    } catch (error) {
-      console.error('Error fetching current user:', error);
+    } catch (error: any) {
+      // Only log errors that aren't 401 (unauthorized) since those are expected when not logged in
+      if (error.response?.status !== 401) {
+        console.error('Error fetching current user:', error);
+      }
       return null;
     }
   }
 
   async validateToken(token: string): Promise<TokenValidationResponse> {
     try {
-      const response = await axios.post<TokenValidationResponse>(
-        `${this.baseURL}/validate`, 
-        token,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      return response.data;
+      const response = await apiClient.post<TokenValidationResponse>('/auth/validate', token);
+      return response;
     } catch (error) {
       return {
         valid: false,
@@ -89,13 +69,23 @@ class AuthService {
     }
   }
 
-  logout(): void {
-    TokenService.clearAll();
+  async logout(): Promise<void> {
+    try {
+      // Call backend logout to clear httpOnly cookies
+      await apiClient.post('/auth/logout', {});
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      // Always clear local data
+      TokenService.clearAll();
+    }
   }
 
   isAuthenticated(): boolean {
-    const token = TokenService.getToken();
-    return !!(token && !TokenService.isTokenExpired(token));
+    // With httpOnly cookies, we can't check authentication client-side
+    // This method is mainly used by the auth store which handles server validation
+    const user = TokenService.getUser();
+    return !!user;
   }
 
   hasRole(requiredRole: string): boolean {

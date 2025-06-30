@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { grpcClient } from '../services/grpc/grpcClient';
+import { useAuthStore } from '@/features/auth/hooks/useAuth';
 import {
   ProcessScanRequest,
   UpdateProductRequest,
@@ -20,9 +21,13 @@ export const GRPC_QUERY_KEYS = {
 
 // Hook for gRPC health check
 export function useGrpcHealth() {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: GRPC_QUERY_KEYS.health(),
     queryFn: () => grpcClient.healthCheck(),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 30, // 30 seconds
     refetchInterval: 1000 * 60, // Check every minute
   });
@@ -30,19 +35,26 @@ export function useGrpcHealth() {
 
 // Hook for system metrics via gRPC
 export function useGrpcMetrics(request: MetricsRequest = {}) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: GRPC_QUERY_KEYS.metrics(request),
     queryFn: () => grpcClient.getSystemMetrics(request),
+    enabled: authInitialized && isAuthenticated,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
 
 // Hook for product calculations via gRPC
 export function useProductCalculations(request: ProductCalculationRequest) {
+  const authInitialized = useAuthStore(state => state.authInitialized);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   return useQuery({
     queryKey: GRPC_QUERY_KEYS.calculations(request.productCode),
     queryFn: () => grpcClient.calculateProductMetrics(request),
-    enabled: !!request.productCode && request.currentQuantity > 0,
+    enabled: authInitialized && isAuthenticated && !!request.productCode && request.currentQuantity > 0,
     staleTime: 1000 * 60, // 1 minute
   });
 }
