@@ -987,3 +987,5 @@
 /home/grant/ServiceBridge/backend/tests/ServiceBridge.Api.Tests/obj/Debug/net8.0/ServiceBridge.Api.Tests.pdb
 /home/grant/ServiceBridge/backend/tests/ServiceBridge.Api.Tests/obj/Debug/net8.0/ServiceBridge.Api.Tests.genruntimeconfig.cache
 /home/grant/ServiceBridge/backend/tests/ServiceBridge.Api.Tests/obj/Debug/net8.0/ref/ServiceBridge.Api.Tests.dll
+/home/grant/ServiceBridge/backend/tests/ServiceBridge.Api.Tests/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/grant/ServiceBridge/backend/tests/ServiceBridge.Api.Tests/bin/Debug/net8.0/AspNetCoreRateLimit.dll

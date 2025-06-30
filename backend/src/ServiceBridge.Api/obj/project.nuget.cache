@@ -1,11 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "wSU+2w0+IS4=",
+  "dgSpecHash": "A3TQyIel3zY=",
   "success": true,
   "projectFilePath": "/home/grant/ServiceBridge/backend/src/ServiceBridge.Api/ServiceBridge.Api.csproj",
   "expectedPackageFiles": [
+    "/home/grant/.nuget/packages/aspnetcoreratelimit/5.0.0/aspnetcoreratelimit.5.0.0.nupkg.sha512",
     "/home/grant/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
     "/home/grant/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
+    "/home/grant/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/grant/.nuget/packages/fluentvalidation/12.0.0/fluentvalidation.12.0.0.nupkg.sha512",
     "/home/grant/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
     "/home/grant/.nuget/packages/fluentvalidation.dependencyinjectionextensions/12.0.0/fluentvalidation.dependencyinjectionextensions.12.0.0.nupkg.sha512",
@@ -87,7 +89,7 @@
     "/home/grant/.nuget/packages/microsoft.net.http.headers/2.3.0/microsoft.net.http.headers.2.3.0.nupkg.sha512",
     "/home/grant/.nuget/packages/microsoft.openapi/1.6.23/microsoft.openapi.1.6.23.nupkg.sha512",
     "/home/grant/.nuget/packages/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
-    "/home/grant/.nuget/packages/newtonsoft.json/11.0.2/newtonsoft.json.11.0.2.nupkg.sha512",
+    "/home/grant/.nuget/packages/newtonsoft.json/13.0.2/newtonsoft.json.13.0.2.nupkg.sha512",
     "/home/grant/.nuget/packages/serilog/4.3.0/serilog.4.3.0.nupkg.sha512",
     "/home/grant/.nuget/packages/serilog.extensions.hosting/9.0.0/serilog.extensions.hosting.9.0.0.nupkg.sha512",
     "/home/grant/.nuget/packages/serilog.extensions.logging/9.0.0/serilog.extensions.logging.9.0.0.nupkg.sha512",

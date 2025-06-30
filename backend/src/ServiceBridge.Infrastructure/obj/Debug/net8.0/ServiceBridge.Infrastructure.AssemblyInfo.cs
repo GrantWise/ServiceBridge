@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ServiceBridge.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18987dbecccf29338ba85562be9e830f26c951cc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2bc8ebd6a2cf1170b2d18d6165ec68e15411ada6")]
 [assembly: System.Reflection.AssemblyProductAttribute("ServiceBridge.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ServiceBridge.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
