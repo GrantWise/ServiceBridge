@@ -11,19 +11,19 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
+    port: 5174,
     open: true,
     proxy: {
       '/api': {
-        target: 'https://localhost:7001',
+        target: 'http://localhost:5196',
         changeOrigin: true,
-        secure: false, // For self-signed certificates in development
+        secure: false,
       },
       '/inventoryhub': {
-        target: 'https://localhost:7001',
+        target: 'http://localhost:5196',
         ws: true,
         changeOrigin: true,
-        secure: false, // For self-signed certificates in development
+        secure: false,
       },
     },
   },

@@ -185,85 +185,85 @@ export function UsersPage() {
   };
 
   return (
-    <div className=\"space-y-6\">
-      <div className=\"flex items-center justify-between\">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className=\"text-3xl font-bold tracking-tight\">User Management</h1>
-          <p className=\"text-muted-foreground\">
+          <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+          <p className="text-muted-foreground">
             Manage user accounts, roles, permissions, and access control
           </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className=\"h-4 w-4 mr-2\" />
+              <Plus className="h-4 w-4 mr-2" />
               Add User
             </Button>
           </DialogTrigger>
-          <DialogContent className=\"sm:max-w-md\">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
                 Add a new user to the system with specified role and permissions.
               </DialogDescription>
             </DialogHeader>
-            <div className=\"grid gap-4 py-4\">
-              <div className=\"grid gap-2\">
-                <Label htmlFor=\"email\">Email Address</Label>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email Address</Label>
                 <Input
-                  id=\"email\"
-                  type=\"email\"
+                  id="email"
+                  type="email"
                   value={createUserData.email}
                   onChange={(e) => setCreateUserData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder=\"user@company.com\"
+                  placeholder="user@company.com"
                 />
               </div>
-              <div className=\"grid grid-cols-2 gap-4\">
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"firstName\">First Name</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="firstName">First Name</Label>
                   <Input
-                    id=\"firstName\"
+                    id="firstName"
                     value={createUserData.firstName}
                     onChange={(e) => setCreateUserData(prev => ({ ...prev, firstName: e.target.value }))}
-                    placeholder=\"John\"
+                    placeholder="John"
                   />
                 </div>
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"lastName\">Last Name</Label>
+                <div className="grid gap-2">
+                  <Label htmlFor="lastName">Last Name</Label>
                   <Input
-                    id=\"lastName\"
+                    id="lastName"
                     value={createUserData.lastName}
                     onChange={(e) => setCreateUserData(prev => ({ ...prev, lastName: e.target.value }))}
-                    placeholder=\"Doe\"
+                    placeholder="Doe"
                   />
                 </div>
               </div>
-              <div className=\"grid gap-2\">
-                <Label htmlFor=\"username\">Username</Label>
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
                 <Input
-                  id=\"username\"
+                  id="username"
                   value={createUserData.username}
                   onChange={(e) => setCreateUserData(prev => ({ ...prev, username: e.target.value }))}
-                  placeholder=\"johndoe\"
+                  placeholder="johndoe"
                 />
               </div>
-              <div className=\"grid gap-2\">
-                <Label htmlFor=\"role\">Role</Label>
+              <div className="grid gap-2">
+                <Label htmlFor="role">Role</Label>
                 <Select value={createUserData.role} onValueChange={(value: any) => setCreateUserData(prev => ({ ...prev, role: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=\"Admin\">Admin</SelectItem>
-                    <SelectItem value=\"Manager\">Manager</SelectItem>
-                    <SelectItem value=\"Operator\">Operator</SelectItem>
-                    <SelectItem value=\"Viewer\">Viewer</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Operator">Operator</SelectItem>
+                    <SelectItem value="Viewer">Viewer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button variant=\"outline\" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancel
               </Button>
               <Button onClick={handleCreateUser} disabled={createUser.isPending}>
@@ -276,54 +276,54 @@ export function UsersPage() {
 
       {/* Statistics Cards */}
       {userStats && (
-        <div className=\"grid gap-4 md:grid-cols-2 lg:grid-cols-4\">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardHeader className=\"flex flex-row items-center justify-between space-y-0 pb-2\">
-              <CardTitle className=\"text-sm font-medium\">Total Users</CardTitle>
-              <Users className=\"h-4 w-4 text-muted-foreground\" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className=\"text-2xl font-bold\">{userStats.total}</div>
-              <p className=\"text-xs text-muted-foreground\">
+              <div className="text-2xl font-bold">{userStats.total}</div>
+              <p className="text-xs text-muted-foreground">
                 +{userStats.recentSignups} this week
               </p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className=\"flex flex-row items-center justify-between space-y-0 pb-2\">
-              <CardTitle className=\"text-sm font-medium\">Active Users</CardTitle>
-              <UserCheck className=\"h-4 w-4 text-green-600\" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <UserCheck className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className=\"text-2xl font-bold text-green-600\">{userStats.active}</div>
-              <p className=\"text-xs text-muted-foreground\">
+              <div className="text-2xl font-bold text-green-600">{userStats.active}</div>
+              <p className="text-xs text-muted-foreground">
                 {userStats.activeToday} active today
               </p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className=\"flex flex-row items-center justify-between space-y-0 pb-2\">
-              <CardTitle className=\"text-sm font-medium\">Inactive Users</CardTitle>
-              <UserX className=\"h-4 w-4 text-gray-600\" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inactive Users</CardTitle>
+              <UserX className="h-4 w-4 text-gray-600" />
             </CardHeader>
             <CardContent>
-              <div className=\"text-2xl font-bold text-gray-600\">{userStats.inactive}</div>
-              <p className=\"text-xs text-muted-foreground\">
+              <div className="text-2xl font-bold text-gray-600">{userStats.inactive}</div>
+              <p className="text-xs text-muted-foreground">
                 {((userStats.inactive / userStats.total) * 100).toFixed(1)}% of total
               </p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className=\"flex flex-row items-center justify-between space-y-0 pb-2\">
-              <CardTitle className=\"text-sm font-medium\">Admins</CardTitle>
-              <Shield className=\"h-4 w-4 text-red-600\" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Admins</CardTitle>
+              <Shield className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className=\"text-2xl font-bold text-red-600\">{userStats.byRole.Admin}</div>
-              <p className=\"text-xs text-muted-foreground\">
+              <div className="text-2xl font-bold text-red-600">{userStats.byRole.Admin}</div>
+              <p className="text-xs text-muted-foreground">
                 System administrators
               </p>
             </CardContent>
@@ -331,56 +331,56 @@ export function UsersPage() {
         </div>
       )}
 
-      <Tabs defaultValue=\"users\" className=\"w-full\">
-        <TabsList className=\"grid w-full grid-cols-4\">
-          <TabsTrigger value=\"users\">Users</TabsTrigger>
-          <TabsTrigger value=\"activity\">Activity Log</TabsTrigger>
-          <TabsTrigger value=\"sessions\">Active Sessions</TabsTrigger>
-          <TabsTrigger value=\"permissions\">Permissions</TabsTrigger>
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="activity">Activity Log</TabsTrigger>
+          <TabsTrigger value="sessions">Active Sessions</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
         </TabsList>
 
-        <TabsContent value=\"users\" className=\"space-y-4\">
+        <TabsContent value="users" className="space-y-4">
           {/* Filters */}
           <Card>
-            <CardContent className=\"pt-6\">
-              <div className=\"flex gap-4 items-center\">
-                <div className=\"flex-1\">
-                  <div className=\"relative\">
-                    <Search className=\"absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground\" />
+            <CardContent className="pt-6">
+              <div className="flex gap-4 items-center">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder=\"Search users...\"
+                      placeholder="Search users..."
                       value={filters.search || ''}
                       onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                      className=\"pl-10\"
+                      className="pl-10"
                     />
                   </div>
                 </div>
                 <Select value={filters.role || 'all'} onValueChange={(value) => 
                   setFilters(prev => ({ ...prev, role: value === 'all' ? undefined : value as any }))
                 }>
-                  <SelectTrigger className=\"w-32\">
-                    <SelectValue placeholder=\"Role\" />
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=\"all\">All Roles</SelectItem>
-                    <SelectItem value=\"Admin\">Admin</SelectItem>
-                    <SelectItem value=\"Manager\">Manager</SelectItem>
-                    <SelectItem value=\"Operator\">Operator</SelectItem>
-                    <SelectItem value=\"Viewer\">Viewer</SelectItem>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Operator">Operator</SelectItem>
+                    <SelectItem value="Viewer">Viewer</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={filters.status || 'all'} onValueChange={(value) => 
                   setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value as any }))
                 }>
-                  <SelectTrigger className=\"w-32\">
-                    <SelectValue placeholder=\"Status\" />
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value=\"all\">All Status</SelectItem>
-                    <SelectItem value=\"Active\">Active</SelectItem>
-                    <SelectItem value=\"Inactive\">Inactive</SelectItem>
-                    <SelectItem value=\"Suspended\">Suspended</SelectItem>
-                    <SelectItem value=\"Pending\">Pending</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                    <SelectItem value="Suspended">Suspended</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -397,24 +397,24 @@ export function UsersPage() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className=\"flex h-48 items-center justify-center\">
-                  <div className=\"flex items-center space-x-2\">
-                    <div className=\"h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent\" />
+                <div className="flex h-48 items-center justify-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     <span>Loading users...</span>
                   </div>
                 </div>
               ) : (
-                <div className=\"space-y-4\">
+                <div className="space-y-4">
                   {users.map((user) => (
-                    <div key={user.id} className=\"flex items-center justify-between p-4 border rounded-lg\">
-                      <div className=\"flex items-center gap-4\">
-                        <div className=\"w-10 h-10 bg-muted rounded-full flex items-center justify-center\">
-                          <Users className=\"h-5 w-5\" />
+                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5" />
                         </div>
                         <div>
-                          <div className=\"font-medium\">{user.firstName} {user.lastName}</div>
-                          <div className=\"text-sm text-muted-foreground\">{user.email}</div>
-                          <div className=\"flex items-center gap-2 mt-1\">
+                          <div className="font-medium">{user.firstName} {user.lastName}</div>
+                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                          <div className="flex items-center gap-2 mt-1">
                             <Badge className={getRoleColor(user.role)}>
                               {user.role}
                             </Badge>
@@ -422,43 +422,43 @@ export function UsersPage() {
                               {user.status}
                             </Badge>
                             {user.profile.department && (
-                              <Badge variant=\"outline\">{user.profile.department}</Badge>
+                              <Badge variant="outline">{user.profile.department}</Badge>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className=\"flex items-center gap-2\">
-                        <div className=\"text-sm text-muted-foreground text-right\">
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm text-muted-foreground text-right">
                           <div>Last login:</div>
                           <div>{user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never'}</div>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant=\"ghost\" size=\"sm\">
-                              <MoreHorizontal className=\"h-4 w-4\" />
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align=\"end\">
+                          <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => {
                               setSelectedUser(user);
                               setIsEditDialogOpen(true);
                             }}>
-                              <Edit className=\"h-4 w-4 mr-2\" />
+                              <Edit className="h-4 w-4 mr-2" />
                               Edit User
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => resetPassword.mutate(user.id)}>
-                              <Shield className=\"h-4 w-4 mr-2\" />
+                              <Shield className="h-4 w-4 mr-2" />
                               Reset Password
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {user.status === 'Active' ? (
                               <DropdownMenuItem onClick={() => suspendUser.mutate({ id: user.id, reason: 'Manual suspension' })}>
-                                <UserX className=\"h-4 w-4 mr-2\" />
+                                <UserX className="h-4 w-4 mr-2" />
                                 Suspend User
                               </DropdownMenuItem>
                             ) : (
                               <DropdownMenuItem onClick={() => activateUser.mutate(user.id)}>
-                                <UserCheck className=\"h-4 w-4 mr-2\" />
+                                <UserCheck className="h-4 w-4 mr-2" />
                                 Activate User
                               </DropdownMenuItem>
                             )}
@@ -466,7 +466,7 @@ export function UsersPage() {
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Trash2 className=\"h-4 w-4 mr-2\" />
+                                  <Trash2 className="h-4 w-4 mr-2" />
                                   Delete User
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
@@ -482,7 +482,7 @@ export function UsersPage() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => deleteUser.mutate(user.id)}
-                                    className=\"bg-red-600 hover:bg-red-700\"
+                                    className="bg-red-600 hover:bg-red-700"
                                   >
                                     Delete User
                                   </AlertDialogAction>
@@ -500,11 +500,11 @@ export function UsersPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value=\"activity\" className=\"space-y-4\">
+        <TabsContent value="activity" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className=\"flex items-center gap-2\">
-                <Activity className=\"h-5 w-5\" />
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
                 User Activity Log
               </CardTitle>
               <CardDescription>
@@ -512,21 +512,21 @@ export function UsersPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className=\"space-y-4\">
+              <div className="space-y-4">
                 {userActivity.map((activity) => (
-                  <div key={activity.id} className=\"flex items-center justify-between p-3 border rounded-lg\">
-                    <div className=\"flex items-center gap-3\">
-                      <div className=\"w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center\">
-                        <Activity className=\"h-4 w-4 text-blue-600\" />
+                  <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Activity className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
-                        <div className=\"font-medium capitalize\">{activity.action} {activity.resource}</div>
-                        <div className=\"text-sm text-muted-foreground\">
+                        <div className="font-medium capitalize">{activity.action} {activity.resource}</div>
+                        <div className="text-sm text-muted-foreground">
                           User ID: {activity.userId} • {activity.ipAddress}
                         </div>
                       </div>
                     </div>
-                    <div className=\"text-sm text-muted-foreground\">
+                    <div className="text-sm text-muted-foreground">
                       {activity.timestamp.toLocaleString()}
                     </div>
                   </div>
@@ -536,11 +536,11 @@ export function UsersPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value=\"sessions\" className=\"space-y-4\">
+        <TabsContent value="sessions" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className=\"flex items-center gap-2\">
-                <Clock className=\"h-5 w-5\" />
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
                 Active Sessions
               </CardTitle>
               <CardDescription>
@@ -548,30 +548,30 @@ export function UsersPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className=\"space-y-4\">
+              <div className="space-y-4">
                 {userSessions.map((session) => (
-                  <div key={session.id} className=\"flex items-center justify-between p-3 border rounded-lg\">
-                    <div className=\"flex items-center gap-3\">
-                      <div className=\"w-8 h-8 bg-green-100 rounded-full flex items-center justify-center\">
-                        <Globe className=\"h-4 w-4 text-green-600\" />
+                  <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Globe className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
-                        <div className=\"font-medium\">User {session.userId}</div>
-                        <div className=\"text-sm text-muted-foreground\">
+                        <div className="font-medium">User {session.userId}</div>
+                        <div className="text-sm text-muted-foreground">
                           {session.ipAddress} • {session.location}
                         </div>
-                        <div className=\"text-xs text-muted-foreground\">
+                        <div className="text-xs text-muted-foreground">
                           Started: {session.startedAt.toLocaleString()}
                         </div>
                       </div>
                     </div>
-                    <div className=\"flex items-center gap-2\">
+                    <div className="flex items-center gap-2">
                       <Badge variant={session.isActive ? 'default' : 'secondary'}>
                         {session.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                       <Button 
-                        variant=\"outline\" 
-                        size=\"sm\"
+                        variant="outline" 
+                        size="sm"
                         onClick={() => terminateSession.mutate(session.id)}
                       >
                         Terminate
@@ -584,11 +584,11 @@ export function UsersPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value=\"permissions\" className=\"space-y-4\">
+        <TabsContent value="permissions" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className=\"flex items-center gap-2\">
-                <Shield className=\"h-5 w-5\" />
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
                 Permission Management
               </CardTitle>
               <CardDescription>
@@ -596,46 +596,46 @@ export function UsersPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className=\"space-y-6\">
+              <div className="space-y-6">
                 {['Admin', 'Manager', 'Operator', 'Viewer'].map((role) => (
-                  <div key={role} className=\"p-4 border rounded-lg\">
-                    <div className=\"flex items-center justify-between mb-3\">
-                      <h4 className=\"font-medium\">{role}</h4>
+                  <div key={role} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">{role}</h4>
                       <Badge className={getRoleColor(role)}>
                         {userStats?.byRole[role as keyof typeof userStats.byRole]} users
                       </Badge>
                     </div>
-                    <div className=\"grid grid-cols-2 md:grid-cols-4 gap-2 text-sm\">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                       {role === 'Admin' && (
                         <>
-                          <div className=\"text-green-600\">✓ Full System Access</div>
-                          <div className=\"text-green-600\">✓ User Management</div>
-                          <div className=\"text-green-600\">✓ System Configuration</div>
-                          <div className=\"text-green-600\">✓ All Operations</div>
+                          <div className="text-green-600">✓ Full System Access</div>
+                          <div className="text-green-600">✓ User Management</div>
+                          <div className="text-green-600">✓ System Configuration</div>
+                          <div className="text-green-600">✓ All Operations</div>
                         </>
                       )}
                       {role === 'Manager' && (
                         <>
-                          <div className=\"text-green-600\">✓ Reports & Analytics</div>
-                          <div className=\"text-green-600\">✓ Inventory Management</div>
-                          <div className=\"text-green-600\">✓ User Supervision</div>
-                          <div className=\"text-red-600\">✗ System Settings</div>
+                          <div className="text-green-600">✓ Reports & Analytics</div>
+                          <div className="text-green-600">✓ Inventory Management</div>
+                          <div className="text-green-600">✓ User Supervision</div>
+                          <div className="text-red-600">✗ System Settings</div>
                         </>
                       )}
                       {role === 'Operator' && (
                         <>
-                          <div className=\"text-green-600\">✓ Inventory Operations</div>
-                          <div className=\"text-green-600\">✓ Product Scanning</div>
-                          <div className=\"text-red-600\">✗ User Management</div>
-                          <div className=\"text-red-600\">✗ System Reports</div>
+                          <div className="text-green-600">✓ Inventory Operations</div>
+                          <div className="text-green-600">✓ Product Scanning</div>
+                          <div className="text-red-600">✗ User Management</div>
+                          <div className="text-red-600">✗ System Reports</div>
                         </>
                       )}
                       {role === 'Viewer' && (
                         <>
-                          <div className=\"text-green-600\">✓ View Dashboard</div>
-                          <div className=\"text-green-600\">✓ View Reports</div>
-                          <div className=\"text-red-600\">✗ Modify Data</div>
-                          <div className=\"text-red-600\">✗ User Access</div>
+                          <div className="text-green-600">✓ View Dashboard</div>
+                          <div className="text-green-600">✓ View Reports</div>
+                          <div className="text-red-600">✗ Modify Data</div>
+                          <div className="text-red-600">✗ User Access</div>
                         </>
                       )}
                     </div>
@@ -649,7 +649,7 @@ export function UsersPage() {
 
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className=\"sm:max-w-md\">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
@@ -657,37 +657,37 @@ export function UsersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
-            <div className=\"grid gap-4 py-4\">
-              <div className=\"grid gap-2\">
-                <Label htmlFor=\"edit-email\">Email Address</Label>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-email">Email Address</Label>
                 <Input
-                  id=\"edit-email\"
-                  type=\"email\"
+                  id="edit-email"
+                  type="email"
                   value={selectedUser.email}
                   onChange={(e) => setSelectedUser(prev => prev ? { ...prev, email: e.target.value } : null)}
                 />
               </div>
-              <div className=\"grid grid-cols-2 gap-4\">
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"edit-firstName\">First Name</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-firstName">First Name</Label>
                   <Input
-                    id=\"edit-firstName\"
+                    id="edit-firstName"
                     value={selectedUser.firstName}
                     onChange={(e) => setSelectedUser(prev => prev ? { ...prev, firstName: e.target.value } : null)}
                   />
                 </div>
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"edit-lastName\">Last Name</Label>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-lastName">Last Name</Label>
                   <Input
-                    id=\"edit-lastName\"
+                    id="edit-lastName"
                     value={selectedUser.lastName}
                     onChange={(e) => setSelectedUser(prev => prev ? { ...prev, lastName: e.target.value } : null)}
                   />
                 </div>
               </div>
-              <div className=\"grid grid-cols-2 gap-4\">
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"edit-role\">Role</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-role">Role</Label>
                   <Select value={selectedUser.role} onValueChange={(value: any) => 
                     setSelectedUser(prev => prev ? { ...prev, role: value } : null)
                   }>
@@ -695,15 +695,15 @@ export function UsersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value=\"Admin\">Admin</SelectItem>
-                      <SelectItem value=\"Manager\">Manager</SelectItem>
-                      <SelectItem value=\"Operator\">Operator</SelectItem>
-                      <SelectItem value=\"Viewer\">Viewer</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                      <SelectItem value="Operator">Operator</SelectItem>
+                      <SelectItem value="Viewer">Viewer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className=\"grid gap-2\">
-                  <Label htmlFor=\"edit-status\">Status</Label>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-status">Status</Label>
                   <Select value={selectedUser.status} onValueChange={(value: any) => 
                     setSelectedUser(prev => prev ? { ...prev, status: value } : null)
                   }>
@@ -711,10 +711,10 @@ export function UsersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value=\"Active\">Active</SelectItem>
-                      <SelectItem value=\"Inactive\">Inactive</SelectItem>
-                      <SelectItem value=\"Suspended\">Suspended</SelectItem>
-                      <SelectItem value=\"Pending\">Pending</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Suspended">Suspended</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -722,7 +722,7 @@ export function UsersPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant=\"outline\" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleEditUser} disabled={updateUser.isPending}>
@@ -741,10 +741,10 @@ export function UsersPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className=\"grid gap-4 md:grid-cols-2\">
-            <div className=\"space-y-3\">
-              <h4 className=\"font-medium text-sm\">User Management Features</h4>
-              <ul className=\"text-sm text-muted-foreground space-y-1\">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">User Management Features</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Complete CRUD operations for user accounts</li>
                 <li>• Role-based access control (RBAC)</li>
                 <li>• Real-time session management</li>
@@ -753,9 +753,9 @@ export function UsersPage() {
               </ul>
             </div>
             
-            <div className=\"space-y-3\">
-              <h4 className=\"font-medium text-sm\">Security & Integration</h4>
-              <ul className=\"text-sm text-muted-foreground space-y-1\">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Security & Integration</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• JWT token-based authentication</li>
                 <li>• Multi-protocol security validation</li>
                 <li>• Real-time activity monitoring via SignalR</li>
@@ -765,8 +765,8 @@ export function UsersPage() {
             </div>
           </div>
           
-          <div className=\"mt-4 p-4 bg-purple-50 rounded-lg\">
-            <p className=\"text-sm text-purple-800\">
+          <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+            <p className="text-sm text-purple-800">
               <strong>Try it:</strong> Create new users, edit existing accounts, and explore the 
               role-based permissions system. The interface demonstrates enterprise-grade user 
               management with comprehensive security controls and real-time monitoring capabilities.

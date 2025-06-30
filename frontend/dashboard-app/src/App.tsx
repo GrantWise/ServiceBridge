@@ -8,6 +8,7 @@ import { Toaster } from 'sonner';
 import { DashboardLayout } from '@/features/shared/components/layout/DashboardLayout';
 import { ProtectedRoute } from '@/features/auth';
 import { useAuth } from '@/features/auth';
+import { applicationService } from '@/features/shared/services/applicationService';
 
 // Pages
 import { LoginPage } from '@/pages/LoginPage';
@@ -31,14 +32,23 @@ const queryClient = new QueryClient({
 });
 
 function AppContent() {
-  const { checkAuth, isLoading } = useAuth();
+  const { checkAuth, isLoading, authInitialized } = useAuth();
 
-  // Check authentication on app start
+  // Initialize application service and check authentication on app start only
   useEffect(() => {
+    // Initialize the application service to listen for auth events
+    applicationService.initialize();
+    
+    // Check authentication
     checkAuth();
-  }, [checkAuth]);
+    
+    // Cleanup on unmount
+    return () => {
+      applicationService.cleanup();
+    };
+  }, []); // Empty dependency array - only run once on mount
 
-  if (isLoading) {
+  if (!authInitialized || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="flex items-center space-x-2">

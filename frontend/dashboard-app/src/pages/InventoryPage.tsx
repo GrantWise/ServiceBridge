@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { InventoryGrid } from '@/features/inventory/components/InventoryGrid/InventoryGrid';
+import { ProductEditDialog } from '@/features/inventory/components/ProductEditDialog/ProductEditDialog';
+import { ScanConfirmationDialog } from '@/features/inventory/components/ScanConfirmationDialog/ScanConfirmationDialog';
+import { BulkActionsBar } from '@/features/inventory/components/BulkOperations/BulkActionsBar';
 import { Product } from '@/features/shared/types/api.types';
 import { useSignalR } from '@/features/shared/hooks/useSignalR';
 
 export function InventoryPage() {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [scanningProduct, setScanningProduct] = useState<Product | null>(null);
   const { isConnected, connectionCount } = useSignalR();
 
   const handleProductEdit = (product: Product) => {
-    console.log('Edit product:', product.productCode);
-    // TODO: Open edit dialog/form
+    setEditingProduct(product);
   };
 
   const handleProductScan = (product: Product) => {
-    console.log('Scan product:', product.productCode);
-    // TODO: Open scan dialog/form
+    setScanningProduct(product);
   };
 
   const handleBulkActions = (products: Product[]) => {
@@ -41,25 +44,10 @@ export function InventoryPage() {
         onBulkActions={handleBulkActions}
       />
 
-      {selectedProducts.length > 0 && (
-        <div className="rounded-lg border p-4 bg-muted/30">
-          <h3 className="font-medium mb-2">Bulk Actions Available</h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {selectedProducts.length} products selected: {selectedProducts.map(p => p.productCode).join(', ')}
-          </p>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
-              Bulk Edit
-            </button>
-            <button className="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm">
-              Export Selected
-            </button>
-            <button className="px-3 py-1 bg-green-600 text-white rounded text-sm">
-              Process Bulk Scan
-            </button>
-          </div>
-        </div>
-      )}
+      <BulkActionsBar
+        selectedProducts={selectedProducts}
+        onClearSelection={() => setSelectedProducts([])}
+      />
 
       {/* Technology Demo Info */}
       <div className="rounded-lg border p-6 bg-card">
@@ -96,6 +84,19 @@ export function InventoryPage() {
           </div>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <ProductEditDialog
+        product={editingProduct}
+        open={!!editingProduct}
+        onOpenChange={(open) => !open && setEditingProduct(null)}
+      />
+      
+      <ScanConfirmationDialog
+        product={scanningProduct}
+        open={!!scanningProduct}
+        onOpenChange={(open) => !open && setScanningProduct(null)}
+      />
     </div>
   );
 }

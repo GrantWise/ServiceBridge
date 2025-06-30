@@ -449,7 +449,7 @@ export function ContinuousImprovementPage() {
                     <h4 className="font-medium text-blue-700 mb-2">Success Metrics</h4>
                     <div className="space-y-2 text-sm">
                       <div>• 50% reduction in stockouts within 6 months</div>
-                      <div>• Process Cpk improvement to >1.33</div>
+                      <div>• Process Cpk improvement to &gt;1.33</div>
                       <div>• 40% reduction in customer complaints</div>
                       <div>• Achieve and maintain control chart stability</div>
                     </div>

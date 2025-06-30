@@ -124,51 +124,51 @@ export function AdvancedAnalyticsPage() {
   };
 
   return (
-    <div className=\"space-y-6\">
-      <div className=\"flex items-center justify-between\">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className=\"text-3xl font-bold tracking-tight\">Advanced Analytics</h1>
-          <p className=\"text-muted-foreground\">
+          <h1 className="text-3xl font-bold tracking-tight">Advanced Analytics</h1>
+          <p className="text-muted-foreground">
             Interactive data exploration and advanced visualization tools
           </p>
         </div>
-        <div className=\"flex items-center gap-2\">
-          <Badge variant=\"outline\">
-            <Activity className=\"h-3 w-3 mr-1\" />
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            <Activity className="h-3 w-3 mr-1" />
             Real-time Data
           </Badge>
-          <Badge variant=\"secondary\">
-            <Zap className=\"h-3 w-3 mr-1\" />
+          <Badge variant="secondary">
+            <Zap className="h-3 w-3 mr-1" />
             Interactive
           </Badge>
         </div>
       </div>
 
-      <Tabs defaultValue=\"drilldown\" className=\"w-full\">
-        <TabsList className=\"grid w-full grid-cols-4\">
-          <TabsTrigger value=\"drilldown\">Drilldown Analysis</TabsTrigger>
-          <TabsTrigger value=\"comparative\">Comparative Trends</TabsTrigger>
-          <TabsTrigger value=\"heatmap\">Activity Heatmap</TabsTrigger>
-          <TabsTrigger value=\"insights\">AI Insights</TabsTrigger>
+      <Tabs defaultValue="drilldown" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="drilldown">Drilldown Analysis</TabsTrigger>
+          <TabsTrigger value="comparative">Comparative Trends</TabsTrigger>
+          <TabsTrigger value="heatmap">Activity Heatmap</TabsTrigger>
+          <TabsTrigger value="insights">AI Insights</TabsTrigger>
         </TabsList>
 
-        <TabsContent value=\"drilldown\" className=\"space-y-6\">
+        <TabsContent value="drilldown" className="space-y-6">
           <DrilldownChart
             initialData={salesByCategory}
-            title=\"Sales Performance by Category\"
-            description=\"Click on any category to drill down into subcategories\"
+            title="Sales Performance by Category"
+            description="Click on any category to drill down into subcategories"
             drilldownLevels={drilldownLevels}
-            chartType=\"bar\"
+            chartType="bar"
             onDrilldown={handleDrilldown}
           />
           
-          <div className=\"grid gap-6 md:grid-cols-2\">
+          <div className="grid gap-6 md:grid-cols-2">
             <DrilldownChart
               initialData={salesByCategory}
-              title=\"Category Distribution\"
-              description=\"Pie chart view with drill-down capability\"
+              title="Category Distribution"
+              description="Pie chart view with drill-down capability"
               drilldownLevels={drilldownLevels}
-              chartType=\"pie\"
+              chartType="pie"
               onDrilldown={handleDrilldown}
             />
             
@@ -180,27 +180,27 @@ export function AdvancedAnalyticsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-3 text-sm\">
-                  <div className=\"flex items-start gap-2\">
-                    <div className=\"w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs\">1</div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">1</div>
                     <div>
                       <strong>Click any segment</strong> to drill down into subcategories
                     </div>
                   </div>
-                  <div className=\"flex items-start gap-2\">
-                    <div className=\"w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs\">2</div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">2</div>
                     <div>
                       <strong>Use breadcrumbs</strong> to navigate back to previous levels
                     </div>
                   </div>
-                  <div className=\"flex items-start gap-2\">
-                    <div className=\"w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs\">3</div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">3</div>
                     <div>
                       <strong>Hover for details</strong> to see additional information
                     </div>
                   </div>
-                  <div className=\"flex items-start gap-2\">
-                    <div className=\"w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs\">4</div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">4</div>
                     <div>
                       <strong>Switch chart types</strong> between bar and pie views
                     </div>
@@ -211,40 +211,40 @@ export function AdvancedAnalyticsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value=\"comparative\" className=\"space-y-6\">
+        <TabsContent value="comparative" className="space-y-6">
           <ComparativeChart
             series={comparativeSeries}
-            title=\"Multi-Metric Performance Comparison\"
-            description=\"Compare multiple business metrics over time with trend analysis\"
+            title="Multi-Metric Performance Comparison"
+            description="Compare multiple business metrics over time with trend analysis"
             showTrends={true}
             showComparison={true}
           />
           
-          <div className=\"grid gap-6 md:grid-cols-3\">
+          <div className="grid gap-6 md:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle className=\"text-lg\">Trend Analysis</CardTitle>
+                <CardTitle className="text-lg">Trend Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-3 text-sm\">
-                  <div className=\"flex items-center justify-between\">
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center justify-between">
                     <span>Revenue Trend</span>
-                    <Badge variant=\"outline\" className=\"text-green-600 border-green-200\">
-                      <TrendingUp className=\"h-3 w-3 mr-1\" />
+                    <Badge variant="outline" className="text-green-600 border-green-200">
+                      <TrendingUp className="h-3 w-3 mr-1" />
                       +12.5%
                     </Badge>
                   </div>
-                  <div className=\"flex items-center justify-between\">
+                  <div className="flex items-center justify-between">
                     <span>Order Volume</span>
-                    <Badge variant=\"outline\" className=\"text-blue-600 border-blue-200\">
-                      <TrendingUp className=\"h-3 w-3 mr-1\" />
+                    <Badge variant="outline" className="text-blue-600 border-blue-200">
+                      <TrendingUp className="h-3 w-3 mr-1" />
                       +8.3%
                     </Badge>
                   </div>
-                  <div className=\"flex items-center justify-between\">
+                  <div className="flex items-center justify-between">
                     <span>Customer Growth</span>
-                    <Badge variant=\"outline\" className=\"text-purple-600 border-purple-200\">
-                      <TrendingUp className=\"h-3 w-3 mr-1\" />
+                    <Badge variant="outline" className="text-purple-600 border-purple-200">
+                      <TrendingUp className="h-3 w-3 mr-1" />
                       +15.7%
                     </Badge>
                   </div>
@@ -254,35 +254,35 @@ export function AdvancedAnalyticsPage() {
             
             <Card>
               <CardHeader>
-                <CardTitle className=\"text-lg\">Correlation Analysis</CardTitle>
+                <CardTitle className="text-lg">Correlation Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-3 text-sm\">
+                <div className="space-y-3 text-sm">
                   <div>
-                    <div className=\"flex items-center justify-between mb-1\">
+                    <div className="flex items-center justify-between mb-1">
                       <span>Revenue vs Orders</span>
-                      <span className=\"font-medium\">0.89</span>
+                      <span className="font-medium">0.89</span>
                     </div>
-                    <div className=\"w-full bg-gray-200 rounded-full h-2\">
-                      <div className=\"bg-green-500 h-2 rounded-full\" style={{width: '89%'}}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-green-500 h-2 rounded-full" style={{width: '89%'}}></div>
                     </div>
                   </div>
                   <div>
-                    <div className=\"flex items-center justify-between mb-1\">
+                    <div className="flex items-center justify-between mb-1">
                       <span>Orders vs Customers</span>
-                      <span className=\"font-medium\">0.76</span>
+                      <span className="font-medium">0.76</span>
                     </div>
-                    <div className=\"w-full bg-gray-200 rounded-full h-2\">
-                      <div className=\"bg-blue-500 h-2 rounded-full\" style={{width: '76%'}}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{width: '76%'}}></div>
                     </div>
                   </div>
                   <div>
-                    <div className=\"flex items-center justify-between mb-1\">
+                    <div className="flex items-center justify-between mb-1">
                       <span>Revenue vs Customers</span>
-                      <span className=\"font-medium\">0.68</span>
+                      <span className="font-medium">0.68</span>
                     </div>
-                    <div className=\"w-full bg-gray-200 rounded-full h-2\">
-                      <div className=\"bg-purple-500 h-2 rounded-full\" style={{width: '68%'}}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-purple-500 h-2 rounded-full" style={{width: '68%'}}></div>
                     </div>
                   </div>
                 </div>
@@ -291,21 +291,21 @@ export function AdvancedAnalyticsPage() {
             
             <Card>
               <CardHeader>
-                <CardTitle className=\"text-lg\">Forecast</CardTitle>
+                <CardTitle className="text-lg">Forecast</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-3 text-sm\">
+                <div className="space-y-3 text-sm">
                   <div>
-                    <span className=\"text-muted-foreground\">Next 7 days:</span>
-                    <div className=\"font-medium\">Revenue: $385K (+7%)</div>
+                    <span className="text-muted-foreground">Next 7 days:</span>
+                    <div className="font-medium">Revenue: $385K (+7%)</div>
                   </div>
                   <div>
-                    <span className=\"text-muted-foreground\">Next 30 days:</span>
-                    <div className=\"font-medium\">Orders: 8,400 (+5%)</div>
+                    <span className="text-muted-foreground">Next 30 days:</span>
+                    <div className="font-medium">Orders: 8,400 (+5%)</div>
                   </div>
                   <div>
-                    <span className=\"text-muted-foreground\">Confidence:</span>
-                    <Badge variant=\"secondary\">85%</Badge>
+                    <span className="text-muted-foreground">Confidence:</span>
+                    <Badge variant="secondary">85%</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -313,19 +313,19 @@ export function AdvancedAnalyticsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value=\"heatmap\" className=\"space-y-6\">
+        <TabsContent value="heatmap" className="space-y-6">
           <InteractiveHeatmap
             data={heatmapData}
-            title=\"User Activity Heatmap\"
-            description=\"Visualize user activity patterns across days and hours\"
-            xAxisLabel=\"Hour of Day\"
-            yAxisLabel=\"Day of Week\"
-            colorScheme=\"blue\"
+            title="User Activity Heatmap"
+            description="Visualize user activity patterns across days and hours"
+            xAxisLabel="Hour of Day"
+            yAxisLabel="Day of Week"
+            colorScheme="blue"
             showValues={true}
             onCellClick={handleHeatmapClick}
           />
           
-          <div className=\"grid gap-6 md:grid-cols-2\">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Pattern Analysis</CardTitle>
@@ -334,29 +334,29 @@ export function AdvancedAnalyticsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-4\">
-                  <div className=\"flex items-center justify-between p-3 bg-blue-50 rounded-lg\">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <div>
-                      <div className=\"font-medium\">Peak Activity</div>
-                      <div className=\"text-sm text-muted-foreground\">Weekdays 2-4 PM</div>
+                      <div className="font-medium">Peak Activity</div>
+                      <div className="text-sm text-muted-foreground">Weekdays 2-4 PM</div>
                     </div>
-                    <Badge variant=\"secondary\">92% higher</Badge>
+                    <Badge variant="secondary">92% higher</Badge>
                   </div>
                   
-                  <div className=\"flex items-center justify-between p-3 bg-green-50 rounded-lg\">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <div>
-                      <div className=\"font-medium\">Weekend Pattern</div>
-                      <div className=\"text-sm text-muted-foreground\">Later start, evening peak</div>
+                      <div className="font-medium">Weekend Pattern</div>
+                      <div className="text-sm text-muted-foreground">Later start, evening peak</div>
                     </div>
-                    <Badge variant=\"secondary\">6 PM peak</Badge>
+                    <Badge variant="secondary">6 PM peak</Badge>
                   </div>
                   
-                  <div className=\"flex items-center justify-between p-3 bg-orange-50 rounded-lg\">
+                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                     <div>
-                      <div className=\"font-medium\">Low Activity</div>
-                      <div className=\"text-sm text-muted-foreground\">Early morning hours</div>
+                      <div className="font-medium">Low Activity</div>
+                      <div className="text-sm text-muted-foreground">Early morning hours</div>
                     </div>
-                    <Badge variant=\"secondary\">2-6 AM</Badge>
+                    <Badge variant="secondary">2-6 AM</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -370,30 +370,30 @@ export function AdvancedAnalyticsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className=\"space-y-4\">
-                  <div className=\"grid grid-cols-2 gap-4\">
-                    <div className=\"text-center\">
-                      <div className=\"text-2xl font-bold\">68.5</div>
-                      <div className=\"text-sm text-muted-foreground\">Avg/Hour</div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">68.5</div>
+                      <div className="text-sm text-muted-foreground">Avg/Hour</div>
                     </div>
-                    <div className=\"text-center\">
-                      <div className=\"text-2xl font-bold\">1,644</div>
-                      <div className=\"text-sm text-muted-foreground\">Daily Total</div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">1,644</div>
+                      <div className="text-sm text-muted-foreground">Daily Total</div>
                     </div>
                   </div>
                   
-                  <div className=\"space-y-2\">
-                    <div className=\"flex justify-between text-sm\">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
                       <span>Weekday Average</span>
-                      <span className=\"font-medium\">78.2</span>
+                      <span className="font-medium">78.2</span>
                     </div>
-                    <div className=\"flex justify-between text-sm\">
+                    <div className="flex justify-between text-sm">
                       <span>Weekend Average</span>
-                      <span className=\"font-medium\">45.6</span>
+                      <span className="font-medium">45.6</span>
                     </div>
-                    <div className=\"flex justify-between text-sm\">
+                    <div className="flex justify-between text-sm">
                       <span>Peak Hour (2 PM)</span>
-                      <span className=\"font-medium\">127.8</span>
+                      <span className="font-medium">127.8</span>
                     </div>
                   </div>
                 </div>
@@ -402,7 +402,7 @@ export function AdvancedAnalyticsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value=\"insights\" className=\"space-y-6\">
+        <TabsContent value="insights" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>🤖 AI-Powered Insights</CardTitle>
@@ -411,21 +411,21 @@ export function AdvancedAnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className=\"space-y-6\">
-                <div className=\"grid gap-4 md:grid-cols-2\">
-                  <div className=\"p-4 border rounded-lg\">
-                    <div className=\"flex items-start gap-3\">
-                      <div className=\"w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center\">
-                        <TrendingUp className=\"h-4 w-4 text-green-600\" />
+              <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
-                        <h4 className=\"font-medium text-green-800\">Opportunity Detected</h4>
-                        <p className=\"text-sm text-muted-foreground mt-1\">
+                        <h4 className="font-medium text-green-800">Opportunity Detected</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
                           Electronics category shows 23% growth potential. Consider expanding inventory 
                           during peak hours (2-4 PM) when user activity is highest.
                         </p>
-                        <div className=\"mt-2\">
-                          <Badge variant=\"outline\" className=\"text-green-600 border-green-200\">
+                        <div className="mt-2">
+                          <Badge variant="outline" className="text-green-600 border-green-200">
                             High Confidence
                           </Badge>
                         </div>
@@ -433,19 +433,19 @@ export function AdvancedAnalyticsPage() {
                     </div>
                   </div>
                   
-                  <div className=\"p-4 border rounded-lg\">
-                    <div className=\"flex items-start gap-3\">
-                      <div className=\"w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center\">
-                        <BarChart3 className=\"h-4 w-4 text-blue-600\" />
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <BarChart3 className="h-4 w-4 text-blue-600" />
                       </div>
                       <div>
-                        <h4 className=\"font-medium text-blue-800\">Pattern Recognition</h4>
-                        <p className=\"text-sm text-muted-foreground mt-1\">
+                        <h4 className="font-medium text-blue-800">Pattern Recognition</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
                           Strong correlation (0.89) between revenue and order volume suggests 
                           consistent pricing strategy. Weekend patterns differ significantly.
                         </p>
-                        <div className=\"mt-2\">
-                          <Badge variant=\"outline\" className=\"text-blue-600 border-blue-200\">
+                        <div className="mt-2">
+                          <Badge variant="outline" className="text-blue-600 border-blue-200">
                             Statistical Insight
                           </Badge>
                         </div>
@@ -454,12 +454,12 @@ export function AdvancedAnalyticsPage() {
                   </div>
                 </div>
                 
-                <div className=\"p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border\">
-                  <h4 className=\"font-medium mb-3\">🚀 Advanced Analytics Demo Features</h4>
-                  <div className=\"grid gap-4 md:grid-cols-2\">
-                    <div className=\"space-y-3\">
-                      <h5 className=\"font-medium text-sm\">Interactive Visualization</h5>
-                      <ul className=\"text-sm text-muted-foreground space-y-1\">
+                <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border">
+                  <h4 className="font-medium mb-3">🚀 Advanced Analytics Demo Features</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-3">
+                      <h5 className="font-medium text-sm">Interactive Visualization</h5>
+                      <ul className="text-sm text-muted-foreground space-y-1">
                         <li>• Multi-level drilldown with breadcrumb navigation</li>
                         <li>• Comparative trend analysis with correlation metrics</li>
                         <li>• Interactive heatmaps with pattern detection</li>
@@ -468,9 +468,9 @@ export function AdvancedAnalyticsPage() {
                       </ul>
                     </div>
                     
-                    <div className=\"space-y-3\">
-                      <h5 className=\"font-medium text-sm\">Data Integration</h5>
-                      <ul className=\"text-sm text-muted-foreground space-y-1\">
+                    <div className="space-y-3">
+                      <h5 className="font-medium text-sm">Data Integration</h5>
+                      <ul className="text-sm text-muted-foreground space-y-1">
                         <li>• REST API data fetching with caching</li>
                         <li>• gRPC bulk analytics processing</li>
                         <li>• SignalR real-time chart updates</li>
@@ -480,8 +480,8 @@ export function AdvancedAnalyticsPage() {
                     </div>
                   </div>
                   
-                  <div className=\"mt-4 p-4 bg-white rounded-lg\">
-                    <p className=\"text-sm text-blue-800\">
+                  <div className="mt-4 p-4 bg-white rounded-lg">
+                    <p className="text-sm text-blue-800">
                       <strong>Try it:</strong> Click on chart segments to drill down, toggle series 
                       in comparative charts, and click heatmap cells to explore data patterns. 
                       These components demonstrate advanced data visualization techniques using modern 

@@ -1,7 +1,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Database, Users, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useDashboardMetrics } from '@/features/shared/hooks/useDashboardMetrics';
+import { useNavigate } from 'react-router-dom';
 
 export function DashboardPage() {
+  const navigate = useNavigate();
+  const {
+    totalProducts,
+    lowStockItems,
+    activeUsers,
+    dailyScans,
+    productCountChange,
+    lowStockChange,
+    activeUsersChange,
+    dailyScansChange,
+    isLoading,
+    lastUpdated
+  } = useDashboardMetrics();
+
   return (
     <div className="space-y-6">
       <div>
@@ -9,6 +26,11 @@ export function DashboardPage() {
         <p className="text-muted-foreground">
           Welcome to ServiceBridge - Multi-protocol inventory management platform
         </p>
+        {!isLoading && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </p>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -19,10 +41,19 @@ export function DashboardPage() {
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,574</div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last month
-            </p>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-8 w-24 mb-1" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{totalProducts.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  {productCountChange} from last month
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -32,10 +63,19 @@ export function DashboardPage() {
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">
-              -3 from yesterday
-            </p>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-1" />
+                <Skeleton className="h-4 w-28" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{lowStockItems}</div>
+                <p className="text-xs text-muted-foreground">
+                  {lowStockChange} from yesterday
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -45,10 +85,19 @@ export function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">48</div>
-            <p className="text-xs text-muted-foreground">
-              +5 new this week
-            </p>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-1" />
+                <Skeleton className="h-4 w-24" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{activeUsers}</div>
+                <p className="text-xs text-muted-foreground">
+                  {activeUsersChange}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -58,10 +107,19 @@ export function DashboardPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">
-              +18% from yesterday
-            </p>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-8 w-20 mb-1" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{dailyScans.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  {dailyScansChange} from yesterday
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -122,21 +180,30 @@ export function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <button className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors">
+            <button 
+              onClick={() => navigate('/inventory')}
+              className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors"
+            >
               <div className="font-medium">View Inventory Grid</div>
               <div className="text-sm text-muted-foreground">
                 Real-time inventory management with inline editing
               </div>
             </button>
             
-            <button className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors">
+            <button 
+              onClick={() => navigate('/analytics')}
+              className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors"
+            >
               <div className="font-medium">Analytics Dashboard</div>
               <div className="text-sm text-muted-foreground">
                 Business intelligence and predictive analytics
               </div>
             </button>
             
-            <button className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors">
+            <button 
+              onClick={() => navigate('/activity')}
+              className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors"
+            >
               <div className="font-medium">System Monitoring</div>
               <div className="text-sm text-muted-foreground">
                 Real-time system health and performance metrics
