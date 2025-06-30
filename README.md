@@ -70,8 +70,13 @@ npm install && npm run dev
 6. Enter: `Bearer <your-jwt-token>`
 7. Now you can test all authenticated endpoints
 
+### Monitoring & Health Endpoints
+- **Simple Health Check**: http://localhost:5196/health (for load balancers)
+- **Detailed Health Check**: http://localhost:5196/api/v1/monitoring/health (comprehensive health status)
+- **System Metrics**: http://localhost:5196/api/v1/monitoring/metrics (CPU, memory, performance)
+- **Protocol Status**: http://localhost:5196/api/v1/monitoring/protocols (REST, gRPC, SignalR status)
+
 ### Other Endpoints
-- **Health Check**: http://localhost:5196/health
 - **SignalR Hub**: ws://localhost:5196/inventoryhub
 - **gRPC Services**: localhost:5196 (requires gRPC client)
 
@@ -81,7 +86,8 @@ The API simultaneously hosts:
 - **REST API**: `/api/v1/*` endpoints for web frontend
 - **gRPC Services**: High-performance backend communication
 - **SignalR Hub**: `/inventoryhub` for real-time updates
-- **Health Checks**: `/health` for monitoring
+- **Monitoring APIs**: `/api/v1/monitoring/*` for system health and metrics
+- **Health Checks**: `/health` for load balancer monitoring
 
 ## Features
 
@@ -90,6 +96,8 @@ The API simultaneously hosts:
 - ✅ **SignalR Hub** for real-time inventory updates
 - ✅ **JWT Authentication** unified across all protocols
 - ✅ **Role-based Authorization** (Admin/Manager/Scanner)
+- ✅ **System Monitoring** with health checks and performance metrics
+- ✅ **Security Hardening** with rate limiting and brute force protection
 - ✅ **Clean Architecture** with CQRS and MediatR
 - ✅ **Entity Framework Core** with SQLite database
 - ✅ **Comprehensive Audit Trail** for compliance
