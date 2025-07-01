@@ -50,6 +50,23 @@ Every technical decision must ultimately serve our users.
     *   **Wants:** A stable, secure, and observable platform.
     *   **Uses:** The monitoring and health check features to ensure uptime and performance.
 
+### 1.4. Core Coding Principles
+
+These principles apply to all code written for ServiceBridge, regardless of the technology stack (backend, frontend, infrastructure).
+
+*   **SOLID Principles:** We strictly adhere to these five fundamental principles of object-oriented design to create maintainable, flexible, and scalable software.
+    *   **S - Single Responsibility Principle (SRP):** A class or module should have only one reason to change. This means it should have only one job or responsibility.
+    *   **O - Open/Closed Principle (OCP):** Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification. You should be able to add new functionality without altering existing, working code.
+    *   **L - Liskov Substitution Principle (LSP):** Subtypes must be substitutable for their base types without altering the correctness of the program. If a program works with a base class, it should also work with any of its derived classes.
+    *   **I - Interface Segregation Principle (ISP):** Clients should not be forced to depend on interfaces they do not use. Rather than one large interface, prefer many small, client-specific interfaces.
+    *   **D - Dependency Inversion Principle (DIP):** High-level modules should not depend on low-level modules. Both should depend on abstractions. Abstractions should not depend on details. Details should depend on abstractions. This promotes loose coupling.
+
+*   **DRY (Don't Repeat Yourself):** Avoid code duplication. Abstract common logic into reusable components, functions, or services. If you find yourself writing the same code more than once, it's a candidate for abstraction.
+
+*   **KISS (Keep It Simple, Stupid):** Favor the simplest solution that meets the requirements. Avoid unnecessary complexity, clever tricks, or over-engineering. Simple code is easier to understand, maintain, and debug.
+
+*   **YAGNI (You Aren't Gonna Need It):** Do not add functionality until it is required. Build for today's needs, design for tomorrow's extensibility. Avoid building features "just in case" they might be needed in the future.
+
 ---
 
 ## Part 2: System Architecture
