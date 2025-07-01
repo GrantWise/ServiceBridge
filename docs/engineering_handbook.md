@@ -1,0 +1,243 @@
+# The ServiceBridge Engineering Handbook
+
+**Version:** 1.0  
+**Status:** Active  
+**Owner:** Engineering Leadership
+
+---
+
+## Part 1: Core Philosophy & Guiding Principles
+
+### 1.1. Our North Star: Pragmatic Over Dogmatic
+
+This handbook is the single source of truth for all technical decisions. However, it is a living document. When a situation arises where these standards seem to conflict with a better outcome, we ask four questions:
+
+1.  **Understandability:** Will this change make the code easier for a new developer to understand?
+2.  **Maintainability:** Six months from now, will we be glad we did this?
+3.  **Onboarding:** Does this lower the barrier for new team members to contribute effectively?
+4.  **Logical Flow:** Does this keep related concepts together, or does it scatter them?
+
+We prioritize **readability** over cleverness, **logical cohesion** over arbitrary rules, and **clear intent** over perfect metrics.
+
+### 1.2. The "Why": Product & Business Vision
+
+We build ServiceBridge to achieve two primary goals:
+1.  **Demonstrate Excellence:** To provide a blueprint for modernizing legacy enterprise systems with a multi-protocol, scalable, and secure architecture.
+2.  **Deliver Value:** To provide a real-time, data-driven inventory management platform that empowers users to make smarter decisions faster.
+
+For a full breakdown of product goals and user stories, refer to the `prd.md`.
+
+### 1.3. Who We Build For: User Personas
+
+Every technical decision must ultimately serve our users. Always keep them in mind:
+*   **Sarah, the Inventory Manager:** Needs real-time data and powerful analytics.
+*   **Michael, the Warehouse Supervisor:** Needs to monitor live operations.
+*   **Jennifer, the Business Analyst:** Needs reliable, exportable data.
+*   **David, the System Administrator:** Needs a stable, observable, and secure system.
+
+---
+
+## Part 2: System Architecture
+
+### 2.1. The Blueprint: .NET Clean Architecture
+
+Our architecture follows the .NET Clean Architecture pattern, ensuring a clean separation of concerns. The dependency rule is absolute: **dependencies must only flow inwards.**
+
+*   **API / UI:** The entry point to the system. It knows about the Application layer.
+*   **Infrastructure:** Implements external concerns like databases and file systems. It knows about the Application layer.
+*   **Application:** Contains all business logic and use cases. It knows about the Domain layer.
+*   **Domain:** Contains core business entities and rules. It has **zero** dependencies.
+
+(For more detail, see `architecture_guide.md`).
+
+### 2.2. Core Backend Patterns
+
+These are not suggestions; they are the patterns we use.
+*   **CQRS (Command Query Responsibility Segregation):** All operations that mutate state are **Commands**. All operations that read state are **Queries**. They are implemented in separate paths.
+*   **MediatR:** The mandatory library for implementing in-process CQRS.
+*   **Repository Pattern:** The required abstraction for all data access.
+*   **Result Pattern:** All Application layer services and handlers **must** return a `Result` object to explicitly handle success and failure states. **Exceptions are not used for business logic flow.**
+
+### 2.3. Multi-Protocol Strategy: The Right Tool for the Job
+
+We use a multi-protocol approach. The choice of protocol is not arbitrary.
+*   **REST:** The default for standard client-to-server communication (e.g., fetching data for a UI, submitting a form).
+*   **gRPC:** Used for high-performance, internal, service-to-service communication.
+*   **SignalR:** The only choice for pushing real-time updates from the server to clients. Polling is not an acceptable alternative.
+
+### 2.4. Production On-Premises Architecture (The Scalability Mandate)
+
+To achieve high availability and scalability, the following architecture is **mandatory** for production deployments.
+
+*   **Load Balancing:** All API instances **must** be deployed behind a load balancer (e.g., NGINX, HAProxy) configured for a **"Least Connections"** strategy to handle long-lived SignalR connections gracefully.
+*   **Database:** **MS SQL Server** is the only supported production database. SQLite is for local development and automated testing only.
+*   **Real-Time Scaling:** SignalR **must** be scaled horizontally using a **Redis Backplane**. This is non-negotiable for any multi-instance deployment.
+*   **Caching:** A **Redis** distributed cache **must** be implemented to reduce database load for frequently accessed or computationally expensive data.
+*   **Background Jobs:** Any operation that is not critical to the immediate user response (e.g., report generation, BI calculations) **must** be offloaded to a **Hangfire** background job processor using MS SQL for storage.
+
+---
+
+## Part 3: Future-Proofing & SaaS Strategy
+
+### 3.1. The Cloud-Ready Path
+
+Our on-premises technology choices are made to ensure a seamless transition to the cloud if required.
+
+| On-Premises Solution | Azure Equivalent |
+| :--- | :--- |
+| MS SQL Server | Azure SQL Database |
+| Redis (for Backplane/Cache) | Azure SignalR Service & Azure Cache for Redis |
+| Hangfire on a VM | Azure Functions & Azure Service Bus |
+| Windows Certificate Store | Azure Key Vault |
+| OpenTelemetry Collector | Azure Monitor |
+
+### 3.2. The SaaS Foundation: Multi-Tenancy by Default
+
+Even for on-premises deployment, we build with a multi-tenant mindset. This is our most important future-proofing strategy.
+
+*   **The Golden Rule:** All data that belongs to a specific customer or deployment **must** be isolated by a `TenantId` (`Guid`). This applies to core entities like `Product`, `Inventory`, and `AuditLog`.
+*   **Implementation:** We use **EF Core's Global Query Filters** to enforce tenant isolation automatically at the database level. This is not optional. Every `DbContext` query for a tenant-aware entity is automatically filtered by the current `TenantId`. This prevents accidental data leakage between tenants.
+
+```csharp
+// Example in AppDbContext.cs
+// This ensures no developer can accidentally query another tenant's data.
+builder.Entity<Product>().HasQueryFilter(p => p.TenantId == _tenantService.GetTenantId());
+```
+
+---
+
+## Part 4: Backend Development Standards (C#)
+
+### 4.1. Naming Conventions & Style
+
+*   We adhere strictly to Microsoft's C# Coding Conventions.
+*   `async` methods **must** end with the `Async` suffix.
+*   Interfaces **must** be prefixed with `I`.
+*   Private fields **must** be prefixed with `_`.
+
+### 4.2. Error Handling
+
+*   **Business Logic Failures** (e.g., "product not found", "invalid quantity") **must** be handled by returning a `Failure` result from the `Result` object.
+*   **True Exceptions** (e.g., database connection lost, critical configuration missing) are for catastrophic, system-level failures only.
+
+### 4.3. Validation
+
+*   All data entering the Application layer (API requests, command objects) **must** be validated with a dedicated **FluentValidation** validator.
+
+### 4.4. Logging (Observability Part 1)
+
+*   **Structured Logging:** All logging **must** use **Serilog** and be configured to output structured JSON to the console or a log aggregator.
+*   **Correlation ID:** Every log message generated during a request **must** include the same `CorrelationId`.
+*   **Content:** Log with sufficient context to diagnose issues. **Never log PII, secrets, or sensitive data.**
+
+### 4.5. Data Access
+
+*   All database calls **must** be asynchronous (`async/await`).
+*   The `DbContext` **must not** be used directly in Application logic. All data access **must** go through the Repository Pattern.
+*   Write efficient queries. Be vigilant against N+1 problems. Use projections (`.Select()`) to query only the data you need.
+
+---
+
+## Part 5: Frontend Development Standards (TypeScript & React)
+
+### 5.1. Component Architecture
+
+*   We use a strict Presentational/Container component pattern to separate logic from the view.
+*   Components should be small, composable, and have a single, clear responsibility.
+
+### 5.2. State Management
+
+The choice of state management tool is not arbitrary.
+*   **Server State:** **TanStack Query** is the mandatory choice for fetching, caching, and synchronizing all data from the backend.
+*   **Global UI State:** **Zustand** is the standard for managing application-wide UI state (e.g., theme, sidebar open/closed).
+*   **Form State:** **React Hook Form** with **Zod** for schema-based validation is the required solution for all forms.
+
+### 5.3. Styling
+
+*   **Tailwind CSS** is our utility-first CSS framework.
+*   **`shadcn/ui`** is our component library.
+*   All styling **must** adhere to the tokens and color palette defined in `brand_guide.md`.
+
+### 5.4. Type Safety
+
+*   TypeScript `strict` mode is **required**.
+*   Define explicit types or interfaces for all component props and API payloads.
+
+---
+
+## Part 6: Security & Compliance
+
+### 6.1. Secure by Design Principles
+
+*   **Authentication:** Stateless **JWT** is the standard.
+*   **Authorization:** All API endpoints **must** be protected with an `[Authorize]` attribute by default. Public access is an explicit exception that requires a documented justification. Role-Based Access Control (RBAC) must be used to enforce permissions.
+*   **Secret Management:** Secrets **must never** be committed to source control. Use environment variables locally and a secure vault (e.g., Azure Key Vault, HashiCorp Vault) in production.
+*   **Input Validation:** All input is untrusted. It **must** be validated on the backend (FluentValidation) and frontend (Zod).
+*   **Dependency Scanning:** Automated dependency scanning (e.g., Dependabot, Snyk) is a **required** step in the CI pipeline.
+
+### 6.2. Compliance & Data Privacy Foundation
+
+While our primary deployment is on-premises, we build with global data privacy standards in mind. This ensures we are prepared for future cloud/SaaS deployments and can meet enterprise compliance requirements.
+
+*   **GDPR (General Data Protection Regulation - EU):**
+    *   **Principles:** We adhere to the core principles of Data Minimization, Purpose Limitation, and Security by Design.
+    *   **Our Implementation:**
+        *   **Data Minimization:** We only collect the minimum user data required for functionality (e.g., `UserId` for auditing). We do not store names, emails, or other PII unless explicitly required and documented.
+        *   **Right to Access/Erasure:** Our architecture, with its comprehensive `AuditLog` and use of `UserId` as a foreign key, is designed to facilitate the export or deletion of a specific user's data upon a verified request.
+        *   **Security:** The technical measures outlined in this handbook (encryption, access control, logging) form the basis of our GDPR compliance.
+
+*   **POPIA (Protection of Personal Information Act - South Africa):**
+    *   This standard is closely aligned with GDPR. Our GDPR-ready approach is sufficient to meet the core requirements of POPIA.
+
+*   **ISO 27001 (Information Security Management):**
+    *   This is a framework for managing information security. Our handbook and practices map directly to its key controls:
+        *   **A.5 (Policies):** This handbook serves as our information security policy.
+        *   **A.9 (Access Control):** Our RBAC, JWT, and least-privilege model.
+        *   **A.10 (Cryptography):** Our requirement for TLS and data-at-rest encryption.
+        *   **A.12 (Operations Security):** Our standards for logging, monitoring, and vulnerability management.
+        *   **A.14 (Development Lifecycle):** Our entire SDLC process, including mandatory code reviews, CI/CD pipelines, and automated testing.
+
+---
+
+## Part 7: Testing & Quality Assurance
+
+### 7.1. The Testing Pyramid
+
+We follow the standard testing pyramid:
+*   **Unit Tests (Many):** The foundation. Test individual classes and methods in isolation.
+*   **Integration Tests (Some):** Test the interaction between components, from the API to the database.
+*   **End-to-End Tests (Few):** Automated UI tests for critical user paths.
+
+### 7.2. Code Coverage
+
+*   We target a minimum of **80% code coverage** for the Application and Domain layers. This is a required quality gate in the CI pipeline.
+
+---
+
+## Part 8: DevOps & Operations
+
+### 8.1. Source Control
+
+*   **Gitflow** is our branching strategy (`main`, `develop`, `feature/`, `hotfix/`).
+*   All work **must** be done in a feature branch and merged via a **Pull Request (PR)**.
+*   Every PR **must** be reviewed and approved by at least one other developer before merging.
+
+### 8.2. Continuous Integration (CI)
+
+*   The CI pipeline (GitHub Actions) **must** run on every PR. A passing build is **required** to merge.
+*   **Required CI Steps:**
+    1.  Build the solution.
+    2.  Run linters.
+    3.  Run all unit and integration tests.
+    4.  Check code coverage.
+    5.  Run automated security scans (dependency check, SAST).
+
+### 8.3. Continuous Deployment (CD)
+
+*   A successful merge to the `develop` branch triggers an automated deployment to a staging environment.
+*   A successful merge to the `main` branch triggers an automated deployment to the production environment.
+
+### 8.4. Monitoring (Observability Part 2)
+
+*   **Health Checks:** The API **must** expose a `/health` endpoint that performs deep checks on its critical dependencies (Database, Redis Cache).
+*   **Metrics & Tracing:** The system **must** be instrumented with **OpenTelemetry** to export metrics, logs, and traces to a monitoring backend.
