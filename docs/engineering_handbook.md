@@ -10,30 +10,45 @@
 
 ### 1.1. Our North Star: Pragmatic Over Dogmatic
 
-This handbook is the single source of truth for all technical decisions. However, it is a living document. When a situation arises where these standards seem to conflict with a better outcome, we ask four questions:
+This handbook is the single source of truth for all technical decisions. It applies to all contributors, human and AI alike. However, it is a living document. The primary goal is to write clean, maintainable, and understandable code. Guidelines serve this goal, not the other way around.
 
-1.  **Understandability:** Will this change make the code easier for a new developer to understand?
-2.  **Maintainability:** Six months from now, will we be glad we did this?
-3.  **Onboarding:** Does this lower the barrier for new team members to contribute effectively?
-4.  **Logical Flow:** Does this keep related concepts together, or does it scatter them?
+Before making a change, ask yourself:
+1.  **Does this make the code easier to understand?**
+2.  **Would I want to maintain this code in six months?**
+3.  **Can a new team member grasp this quickly?**
+4.  **Does this keep related concepts logically together?**
 
-We prioritize **readability** over cleverness, **logical cohesion** over arbitrary rules, and **clear intent** over perfect metrics.
+We prioritize **readability** over cleverness, **logical cohesion** over arbitrary rules, and **clear intent** over perfect metrics. A 300-line class that tells a coherent story is infinitely better than 3 fragmented 100-line classes that scatter related logic.
 
-### 1.2. The "Why": Product & Business Vision
+### 1.2. The "Why": Our Vision as a Platform
 
-We build ServiceBridge to achieve two primary goals:
-1.  **Demonstrate Excellence:** To provide a blueprint for modernizing legacy enterprise systems with a multi-protocol, scalable, and secure architecture.
-2.  **Deliver Value:** To provide a real-time, data-driven inventory management platform that empowers users to make smarter decisions faster.
+ServiceBridge is a **workflow engine platform** for building custom shop floor and operational applications. While its first implementation is an inventory management system, its core purpose is to provide a generic, configurable, and process-agnostic foundation for modernizing enterprise operations.
 
-For a full breakdown of product goals and user stories, refer to the `prd.md`.
+Our goals are:
+1.  **Enable Flexibility:** To provide a platform where custom business processes can be modeled and deployed rapidly.
+2.  **Demonstrate Excellence:** To serve as a blueprint for modern, multi-protocol, scalable, and secure enterprise architecture.
 
-### 1.3. Who We Build For: User Personas
+(For the long-term technical vision, see `docs/future/unified_factory_platform_architecture.md`).
 
-Every technical decision must ultimately serve our users. Always keep them in mind:
-*   **Sarah, the Inventory Manager:** Needs real-time data and powerful analytics.
-*   **Michael, the Warehouse Supervisor:** Needs to monitor live operations.
-*   **Jennifer, the Business Analyst:** Needs reliable, exportable data.
-*   **David, the System Administrator:** Needs a stable, observable, and secure system.
+### 1.3. Who We Build For: Our User Personas
+
+Every technical decision must ultimately serve our users.
+
+*   **The Workflow Designer (Jennifer, the CI Specialist/Business Analyst):**
+    *   **Wants:** A powerful and flexible way to model real-world business processes without writing code.
+    *   **Uses:** The platform's configuration tools to design and build custom workflows, define data capture forms, and create the applications that other personas use.
+
+*   **The Operations Manager (Sarah):**
+    *   **Wants:** Real-time visibility and control over her business processes.
+    *   **Uses:** The dashboards and reports built on the platform to monitor KPIs, identify bottlenecks, and ensure processes are being followed.
+
+*   **The Floor Operator (Michael):**
+    *   **Wants:** A simple, clear, and fast way to do their job.
+    *   **Uses:** The specific, targeted applications (e.g., a scanner app) built on the platform to execute tasks and record data.
+
+*   **The System Administrator (David):**
+    *   **Wants:** A stable, secure, and observable platform.
+    *   **Uses:** The monitoring and health check features to ensure uptime and performance.
 
 ---
 
@@ -50,13 +65,21 @@ Our architecture follows the .NET Clean Architecture pattern, ensuring a clean s
 
 (For more detail, see `architecture_guide.md`).
 
-### 2.2. Core Backend Patterns
+### 2.2. Core Backend Patterns: The "How"
 
-These are not suggestions; they are the patterns we use.
-*   **CQRS (Command Query Responsibility Segregation):** All operations that mutate state are **Commands**. All operations that read state are **Queries**. They are implemented in separate paths.
-*   **MediatR:** The mandatory library for implementing in-process CQRS.
-*   **Repository Pattern:** The required abstraction for all data access.
-*   **Result Pattern:** All Application layer services and handlers **must** return a `Result` object to explicitly handle success and failure states. **Exceptions are not used for business logic flow.**
+These are the patterns we use and how to implement them.
+
+*   **CQRS (Command Query Responsibility Segregation):**
+    *   **Why:** We separate read-heavy operations from write operations to optimize and scale each path independently. This prevents complex queries from impacting the performance of critical state-changing operations.
+    *   **How:** Any action that mutates state **must** be a `Command`. Any action that reads state **must** be a `Query`. Create a class in the appropriate `Commands` or `Queries` folder and a corresponding `Handler` that contains the business logic.
+
+*   **Repository Pattern:**
+    *   **Why:** To create a stable abstraction layer between our application's business logic and the data access technology (e.g., MS SQL).
+    *   **How:** Application logic **must not** reference `DbContext` directly. All data access **must** go through a repository interface defined in the Domain layer.
+
+*   **Result Pattern:**
+    *   **Why:** To explicitly handle the success or failure of an operation without relying on exceptions for control flow. This makes the code more predictable, robust, and easier to reason about.
+    *   **How:** All Application layer services and handlers **must** return a `Result` object to explicitly handle success and failure states. **Exceptions are not used for business logic flow.**
 
 ### 2.3. Multi-Protocol Strategy: The Right Tool for the Job
 
@@ -95,8 +118,8 @@ Our on-premises technology choices are made to ensure a seamless transition to t
 
 Even for on-premises deployment, we build with a multi-tenant mindset. This is our most important future-proofing strategy.
 
-*   **The Golden Rule:** All data that belongs to a specific customer or deployment **must** be isolated by a `TenantId` (`Guid`). This applies to core entities like `Product`, `Inventory`, and `AuditLog`.
-*   **Implementation:** We use **EF Core's Global Query Filters** to enforce tenant isolation automatically at the database level. This is not optional. Every `DbContext` query for a tenant-aware entity is automatically filtered by the current `TenantId`. This prevents accidental data leakage between tenants.
+*   **The Golden Rule:** Any data entity that stores customer-specific information, whether a core entity or a dynamically configured "workflow entity," **must** implement an interface (e.g., `ITenantEntity`) that enforces the presence of a `TenantId`.
+*   **Implementation:** We use **EF Core’s Global Query Filters** to enforce tenant isolation automatically at the database level. This is not optional. Every `DbContext` query for a tenant-aware entity is automatically filtered by the current `TenantId`. This prevents accidental data leakage between tenants.
 
 ```csharp
 // Example in AppDbContext.cs
@@ -108,21 +131,18 @@ builder.Entity<Product>().HasQueryFilter(p => p.TenantId == _tenantService.GetTe
 
 ## Part 4: Backend Development Standards (C#)
 
-### 4.1. Naming Conventions & Style
+### 4.1. Code Style & Structure
 
-*   We adhere strictly to Microsoft's C# Coding Conventions.
-*   `async` methods **must** end with the `Async` suffix.
-*   Interfaces **must** be prefixed with `I`.
-*   Private fields **must** be prefixed with `_`.
+*   **Naming:** Adhere to Microsoft's C# Coding Conventions (`Async` suffix, `I` prefix for interfaces, `_` prefix for private fields).
+*   **File Size:** Prioritize logical cohesion. A class of ~200 lines is a reasonable target, but a larger class that tells a coherent story is acceptable.
+*   **Function Size:** Aim for 20-40 lines. A longer function is permissible only if it has a clear, single purpose and cannot be cleanly subdivided.
+*   **Comments:** Comment on the **why**, not the **what**. Avoid obvious comments.
 
-### 4.2. Error Handling
+### 4.2. Error Handling & Validation
 
 *   **Business Logic Failures** (e.g., "product not found", "invalid quantity") **must** be handled by returning a `Failure` result from the `Result` object.
 *   **True Exceptions** (e.g., database connection lost, critical configuration missing) are for catastrophic, system-level failures only.
-
-### 4.3. Validation
-
-*   All data entering the Application layer (API requests, command objects) **must** be validated with a dedicated **FluentValidation** validator.
+*   **Validation:** All data entering the Application layer (API requests, command objects) **must** be validated with a dedicated **FluentValidation** validator.
 
 ### 4.4. Logging (Observability Part 1)
 
@@ -144,6 +164,7 @@ builder.Entity<Product>().HasQueryFilter(p => p.TenantId == _tenantService.GetTe
 
 *   We use a strict Presentational/Container component pattern to separate logic from the view.
 *   Components should be small, composable, and have a single, clear responsibility.
+*   **Component Size:** Aim for ~200 lines, but prioritize logical cohesion.
 
 ### 5.2. State Management
 
@@ -205,12 +226,27 @@ While our primary deployment is on-premises, we build with global data privacy s
 
 We follow the standard testing pyramid:
 *   **Unit Tests (Many):** The foundation. Test individual classes and methods in isolation.
-*   **Integration Tests (Some):** Test the interaction between components, from the API to the database.
+*   **Integration Tests (Some)::** Test the interaction between components, from the API to the database.
 *   **End-to-End Tests (Few):** Automated UI tests for critical user paths.
 
 ### 7.2. Code Coverage
 
 *   We target a minimum of **80% code coverage** for the Application and Domain layers. This is a required quality gate in the CI pipeline.
+
+### 7.3. Debugging & Root Cause Analysis
+
+When fixing bugs or failing tests, you **must** follow this process:
+1.  **Identify the Centralized Pattern:** Look for a common cause behind multiple failures. Do not patch symptoms individually.
+2.  **Find the Root Architectural Violation:** Identify the underlying issue (e.g., a violation of SRP, DRY).
+3.  **Create or Fix a Centralized Solution:** Develop a single utility, service, or pattern to resolve the root cause.
+4.  **Apply the Fix:** Refactor all affected code to use the new centralized solution.
+
+#### Anti-Patterns to Avoid:
+*   Fixing test failures one by one.
+*   Duplicating fixes across multiple files.
+*   Mixing unrelated concerns in a single component or class.
+*   Hardcoding values that should come from configuration.
+*   Implementing inconsistent error handling.
 
 ---
 
@@ -241,3 +277,66 @@ We follow the standard testing pyramid:
 
 *   **Health Checks:** The API **must** expose a `/health` endpoint that performs deep checks on its critical dependencies (Database, Redis Cache).
 *   **Metrics & Tracing:** The system **must** be instrumented with **OpenTelemetry** to export metrics, logs, and traces to a monitoring backend.
+
+---
+
+## Part 9: Common Development Commands
+
+### Build & Run
+```bash
+# Build entire solution
+dotnet build backend/ServiceBridge.sln
+
+# Run the API project (hosts REST, gRPC, and SignalR)
+dotnet run --project backend/src/ServiceBridge.Api
+```
+
+### Testing
+```bash
+# Run all tests
+dotnet test backend/tests/ServiceBridge.Api.Tests
+dotnet test backend/tests/ServiceBridge.Application.Tests
+dotnet test backend/tests/ServiceBridge.Domain.Tests
+
+# Run tests with coverage
+dotnet test backend/ServiceBridge.sln --collect:"XPlat Code Coverage"
+```
+
+### Database Operations
+```bash
+# Add migration
+dotnet ef migrations add <MigrationName> --project backend/src/ServiceBridge.Infrastructure --startup-project backend/src/ServiceBridge.Api
+
+# Update database
+dotnet ef database update --project backend/src/ServiceBridge.Infrastructure --startup-project backend/src/ServiceBridge.Api
+
+# Drop database (for development)
+dotnet ef database drop --project backend/src/ServiceBridge.Infrastructure --startup-project backend/src/ServiceBridge.Api
+```
+
+### Frontend Development
+```bash
+# Install frontend dependencies
+cd frontend/scanner-app && npm install
+cd frontend/dashboard-app && npm install
+
+# Start development servers
+cd frontend/scanner-app && npm start
+cd frontend/dashboard-app && npm start
+
+# Run tests
+cd frontend/scanner-app && npm test
+cd frontend/dashboard-app && npm test
+
+# Build for production
+cd frontend/scanner-app && npm run build
+cd frontend/dashboard-app && npm run build
+
+# Type checking
+cd frontend/scanner-app && npm run type-check
+cd frontend/dashboard-app && npm run type-check
+
+# Linting
+cd frontend/scanner-app && npm run lint
+cd frontend/dashboard-app && npm run lint
+```
